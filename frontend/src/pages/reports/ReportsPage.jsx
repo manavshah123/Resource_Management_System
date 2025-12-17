@@ -811,7 +811,7 @@ function ReportsPage() {
             <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
               <Typography variant="subtitle2" gutterBottom>Configuration Variables:</Typography>
               <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>
-                ADMIN_EMAILS=admin@wishtree.com<br />
+                ADMIN_EMAILS=admin@rmp.com<br />
                 DAILY_REPORT_ENABLED=true<br />
                 WEEKLY_REPORT_ENABLED=true
               </Typography>

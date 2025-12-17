@@ -137,7 +137,7 @@
 ```
 RMP/
 ├── 📂 backend/                      # Spring Boot Application
-│   ├── 📂 src/main/java/com/wishtree/rmp/
+│   ├── 📂 src/main/java/com/rmp/
 │   │   ├── 📂 config/              # Configuration (CORS, Security, Quartz, Zoho)
 │   │   ├── 📂 controller/          # REST API Controllers
 │   │   ├── 📂 dto/                 # Data Transfer Objects
@@ -213,7 +213,7 @@ RMP/
 
    ```bash
 # Clone the repository
-git clone https://github.com/wishtree/rmp.git
+git clone https://github.com/manavshah123/Resource_Management_System.git
 cd rmp
 
 # Start all services
@@ -507,7 +507,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Team
 
-Built with ❤️ by **Wishtree Technologies**
+Built with ❤️ by **Manav Shah**
 
 ---
 

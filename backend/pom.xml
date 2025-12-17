@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
     
-    <groupId>com.wishtree</groupId>
+    <groupId>com.rmp</groupId>
     <artifactId>rmp</artifactId>
     <version>1.0.0</version>
     <name>Resource Management Portal</name>
