@@ -61,7 +61,6 @@ function ThemeCard({ theme, isSelected, onSelect }) {
         },
       }}
     >
-      {/* Selected checkmark */}
       {isSelected && (
         <Box
           sx={{
@@ -82,7 +81,6 @@ function ThemeCard({ theme, isSelected, onSelect }) {
         </Box>
       )}
 
-      {/* Color preview */}
       <Box sx={{ display: 'flex', gap: 0.5, mb: 1.5 }}>
         {theme.preview.map((color, index) => (
           <Box
@@ -99,7 +97,6 @@ function ThemeCard({ theme, isSelected, onSelect }) {
         ))}
       </Box>
 
-      {/* Theme name */}
       <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
         {theme.name}
       </Typography>
@@ -140,6 +137,28 @@ function SettingsPage() {
     scopes: '',
   });
 
+  // General settings state
+  const [general, setGeneral] = useState({
+    notifications: {
+      emailNotificationsEnabled: true,
+      benchAlertsEnabled: true,
+      overallocationAlertsEnabled: true,
+      weeklyReportsEnabled: true,
+      notificationEmailRecipients: '',
+    },
+    system: {
+      maintenanceMode: false,
+      sessionTimeout: 30,
+      defaultPageSize: 10,
+    },
+    allocation: {
+      autoDeallocationEnabled: true,
+      deallocationNotifyDays: 7,
+      maxAllocationPercentage: 100,
+      minAllocationPercentage: 10,
+    },
+  });
+
   const [showSecret, setShowSecret] = useState(false);
   const { refreshBranding, setTheme: applyThemePreview } = useBranding();
 
@@ -150,12 +169,20 @@ function SettingsPage() {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const [brandingRes, zohoRes] = await Promise.all([
+      const [brandingRes, zohoRes, generalRes] = await Promise.all([
         settingsApi.getBranding(),
         settingsApi.getZohoConfig(),
+        settingsApi.getGeneralConfig(),
       ]);
       setBranding(brandingRes.data || {});
       setZoho(zohoRes.data || {});
+      if (generalRes.data) {
+        setGeneral({
+          notifications: generalRes.data.notifications || general.notifications,
+          system: generalRes.data.system || general.system,
+          allocation: generalRes.data.allocation || general.allocation,
+        });
+      }
     } catch (error) {
       console.error('Failed to fetch settings:', error);
       showSnackbar('Failed to load settings', 'error');
@@ -166,7 +193,6 @@ function SettingsPage() {
 
   const handleThemeSelect = (themeId) => {
     setBranding({ ...branding, themeId });
-    // Apply theme preview immediately
     applyThemePreview(themeId);
   };
 
@@ -174,7 +200,7 @@ function SettingsPage() {
     try {
       setSaving(true);
       await settingsApi.updateBranding(branding);
-      await refreshBranding(); // Apply changes permanently
+      await refreshBranding();
       showSnackbar('Branding settings saved and applied!', 'success');
     } catch (error) {
       console.error('Failed to save branding:', error);
@@ -195,6 +221,41 @@ function SettingsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSaveGeneral = async () => {
+    try {
+      setSaving(true);
+      await settingsApi.updateGeneralConfig(general);
+      showSnackbar('General settings saved successfully', 'success');
+    } catch (error) {
+      console.error('Failed to save general settings:', error);
+      showSnackbar('Failed to save general settings', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Helper functions to update nested state
+  const updateNotification = (key, value) => {
+    setGeneral({
+      ...general,
+      notifications: { ...general.notifications, [key]: value },
+    });
+  };
+
+  const updateSystem = (key, value) => {
+    setGeneral({
+      ...general,
+      system: { ...general.system, [key]: value },
+    });
+  };
+
+  const updateAllocation = (key, value) => {
+    setGeneral({
+      ...general,
+      allocation: { ...general.allocation, [key]: value },
+    });
   };
 
   const showSnackbar = (message, severity) => {
@@ -232,7 +293,7 @@ function SettingsPage() {
 
         {/* Branding Tab */}
         {tabValue === 0 && (
-            <CardContent>
+          <CardContent>
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                 White Label Configuration
@@ -299,7 +360,6 @@ function SettingsPage() {
                 />
               </Grid>
 
-              {/* Theme Selection */}
               <Grid item xs={12}>
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
@@ -430,7 +490,7 @@ function SettingsPage() {
                   label="OAuth Scopes"
                   value={zoho.scopes}
                   onChange={(e) => setZoho({ ...zoho, scopes: e.target.value })}
-                  helperText="Comma-separated list of scopes (e.g., ZohoProjects.portals.READ,ZohoProjects.projects.READ)"
+                  helperText="Comma-separated list of scopes"
                   multiline
                   rows={2}
                 />
@@ -478,7 +538,7 @@ function SettingsPage() {
                   onChange={(e) => setZoho({ ...zoho, peopleApiBaseUrl: e.target.value })}
                   size="small"
                 />
-        </Grid>
+              </Grid>
 
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
@@ -501,110 +561,207 @@ function SettingsPage() {
 
         {/* General Settings Tab */}
         {tabValue === 2 && (
-            <CardContent>
+          <CardContent>
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                 General Settings
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Configure general application behavior and notifications.
+                Configure general application behavior, notifications, and allocation rules.
               </Typography>
             </Box>
 
             <Grid container spacing={3}>
+              {/* Notifications Section */}
               <Grid item xs={12} md={6}>
                 <Card variant="outlined">
                   <CardContent>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
                       Notifications
-              </Typography>
-              <List disablePadding>
-                <ListItem disableGutters>
-                  <ListItemText
-                    primary="Email Notifications"
-                    secondary="Receive important updates via email"
-                  />
-                  <ListItemSecondaryAction>
-                          <Switch defaultChecked />
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <Divider />
-                <ListItem disableGutters>
-                  <ListItemText
-                    primary="Bench Alerts"
-                    secondary="Get notified when employees go on bench"
-                  />
-                  <ListItemSecondaryAction>
-                          <Switch defaultChecked />
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <Divider />
-                <ListItem disableGutters>
-                  <ListItemText
-                    primary="Over-allocation Alerts"
-                    secondary="Get notified when resources are over-allocated"
-                  />
-                  <ListItemSecondaryAction>
-                          <Switch defaultChecked />
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <Divider />
-                <ListItem disableGutters>
-                  <ListItemText
-                    primary="Weekly Reports"
-                    secondary="Receive weekly utilization reports"
-                  />
-                  <ListItemSecondaryAction>
-                          <Switch defaultChecked />
-                  </ListItemSecondaryAction>
-                </ListItem>
-              </List>
-            </CardContent>
-          </Card>
-        </Grid>
+                    </Typography>
+                    <List disablePadding>
+                      <ListItem disableGutters>
+                        <ListItemText
+                          primary="Email Notifications"
+                          secondary="Receive important updates via email"
+                        />
+                        <ListItemSecondaryAction>
+                          <Switch
+                            checked={general.notifications.emailNotificationsEnabled}
+                            onChange={(e) => updateNotification('emailNotificationsEnabled', e.target.checked)}
+                          />
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                      <Divider />
+                      <ListItem disableGutters>
+                        <ListItemText
+                          primary="Bench Alerts"
+                          secondary="Get notified when employees go on bench"
+                        />
+                        <ListItemSecondaryAction>
+                          <Switch
+                            checked={general.notifications.benchAlertsEnabled}
+                            onChange={(e) => updateNotification('benchAlertsEnabled', e.target.checked)}
+                          />
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                      <Divider />
+                      <ListItem disableGutters>
+                        <ListItemText
+                          primary="Over-allocation Alerts"
+                          secondary="Get notified when resources are over-allocated"
+                        />
+                        <ListItemSecondaryAction>
+                          <Switch
+                            checked={general.notifications.overallocationAlertsEnabled}
+                            onChange={(e) => updateNotification('overallocationAlertsEnabled', e.target.checked)}
+                          />
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                      <Divider />
+                      <ListItem disableGutters>
+                        <ListItemText
+                          primary="Weekly Reports"
+                          secondary="Receive weekly utilization reports"
+                        />
+                        <ListItemSecondaryAction>
+                          <Switch
+                            checked={general.notifications.weeklyReportsEnabled}
+                            onChange={(e) => updateNotification('weeklyReportsEnabled', e.target.checked)}
+                          />
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    </List>
+                    <TextField
+                      fullWidth
+                      label="Notification Recipients"
+                      value={general.notifications.notificationEmailRecipients}
+                      onChange={(e) => updateNotification('notificationEmailRecipients', e.target.value)}
+                      helperText="Comma-separated email addresses"
+                      size="small"
+                      sx={{ mt: 2 }}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
 
+              {/* System & Allocation Section */}
               <Grid item xs={12} md={6}>
-                <Card variant="outlined">
-            <CardContent>
+                <Card variant="outlined" sx={{ mb: 2 }}>
+                  <CardContent>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                System
-              </Typography>
-              <Alert severity="warning" sx={{ mb: 2 }}>
-                Maintenance mode will make the system read-only for all users except admins.
-              </Alert>
-              <FormControlLabel
-                      control={<Switch color="warning" />}
-                label="Maintenance Mode"
-              />
-                    <Divider sx={{ my: 2 }} />
+                      System
+                    </Typography>
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                      Maintenance mode will make the system read-only for all users except admins.
+                    </Alert>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          color="warning"
+                          checked={general.system.maintenanceMode}
+                          onChange={(e) => updateSystem('maintenanceMode', e.target.checked)}
+                        />
+                      }
+                      label="Maintenance Mode"
+                    />
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                      <Grid item xs={6}>
+                        <TextField
+                          fullWidth
+                          label="Session Timeout (min)"
+                          type="number"
+                          value={general.system.sessionTimeout}
+                          onChange={(e) => updateSystem('sessionTimeout', parseInt(e.target.value) || 30)}
+                          size="small"
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          fullWidth
+                          label="Default Page Size"
+                          type="number"
+                          value={general.system.defaultPageSize}
+                          onChange={(e) => updateSystem('defaultPageSize', parseInt(e.target.value) || 10)}
+                          size="small"
+                        />
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+
+                <Card variant="outlined">
+                  <CardContent>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
                       Allocation Settings
                     </Typography>
                     <FormControlLabel
-                      control={<Switch defaultChecked />}
+                      control={
+                        <Switch
+                          checked={general.allocation.autoDeallocationEnabled}
+                          onChange={(e) => updateAllocation('autoDeallocationEnabled', e.target.checked)}
+                        />
+                      }
                       label="Auto Deallocation after project end"
                     />
-                    <TextField
-                      fullWidth
-                      label="Days before end date to notify"
-                      type="number"
-                      defaultValue={7}
-                      size="small"
-                      sx={{ mt: 2 }}
-                    />
-            </CardContent>
-          </Card>
-        </Grid>
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Days before end date to notify"
+                          type="number"
+                          value={general.allocation.deallocationNotifyDays}
+                          onChange={(e) => updateAllocation('deallocationNotifyDays', parseInt(e.target.value) || 7)}
+                          size="small"
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          fullWidth
+                          label="Max Allocation %"
+                          type="number"
+                          value={general.allocation.maxAllocationPercentage}
+                          onChange={(e) => updateAllocation('maxAllocationPercentage', parseInt(e.target.value) || 100)}
+                          size="small"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          fullWidth
+                          label="Min Allocation %"
+                          type="number"
+                          value={general.allocation.minAllocationPercentage}
+                          onChange={(e) => updateAllocation('minAllocationPercentage', parseInt(e.target.value) || 10)}
+                          size="small"
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-        <Grid item xs={12}>
+              <Grid item xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-            <Button variant="outlined">Cancel</Button>
-                  <Button variant="contained" startIcon={<SaveIcon />}>
-              Save Settings
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
+                  <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchSettings}>
+                    Reset
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                    onClick={handleSaveGeneral}
+                    disabled={saving}
+                  >
+                    Save General Settings
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
           </CardContent>
         )}
       </Card>

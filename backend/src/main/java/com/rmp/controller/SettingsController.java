@@ -96,6 +96,25 @@ public class SettingsController {
     }
 
     // ========================================
+    // GENERAL SETTINGS ENDPOINTS
+    // ========================================
+
+    @GetMapping("/general")
+    @Operation(summary = "Get general configuration", description = "Returns general settings including notifications, system, and allocation")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<AppSettingsDto.GeneralConfig> getGeneralConfig() {
+        return ResponseEntity.ok(settingsService.getGeneralConfig());
+    }
+
+    @PutMapping("/general")
+    @Operation(summary = "Update general configuration", description = "Updates general settings")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AppSettingsDto.GeneralConfig> updateGeneralConfig(
+            @RequestBody AppSettingsDto.GeneralConfig config) {
+        return ResponseEntity.ok(settingsService.updateGeneralConfig(config));
+    }
+
+    // ========================================
     // INDIVIDUAL SETTING ENDPOINTS
     // ========================================
 

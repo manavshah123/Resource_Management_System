@@ -41,6 +41,16 @@ export const settingsApi = {
   updateZohoConfig: (config) => apiClient.put(`${BASE_PATH}/zoho`, config),
 
   // ========================================
+  // GENERAL SETTINGS ENDPOINTS
+  // ========================================
+
+  // Get general configuration (notifications, system, allocation)
+  getGeneralConfig: () => apiClient.get(`${BASE_PATH}/general`),
+
+  // Update general configuration
+  updateGeneralConfig: (config) => apiClient.put(`${BASE_PATH}/general`, config),
+
+  // ========================================
   // INDIVIDUAL SETTING ENDPOINTS
   // ========================================
 
