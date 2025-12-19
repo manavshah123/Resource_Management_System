@@ -74,23 +74,5 @@ public class AppSettings extends BaseEntity {
     public static final String KEY_ZOHO_API_BASE_URL = "ZOHO_API_BASE_URL";
     public static final String KEY_ZOHO_PEOPLE_API_BASE_URL = "ZOHO_PEOPLE_API_BASE_URL";
     public static final String KEY_ZOHO_SCOPES = "ZOHO_SCOPES";
-
-    // Notification Keys
-    public static final String KEY_EMAIL_NOTIFICATIONS_ENABLED = "EMAIL_NOTIFICATIONS_ENABLED";
-    public static final String KEY_BENCH_ALERTS_ENABLED = "BENCH_ALERTS_ENABLED";
-    public static final String KEY_OVERALLOCATION_ALERTS_ENABLED = "OVERALLOCATION_ALERTS_ENABLED";
-    public static final String KEY_WEEKLY_REPORTS_ENABLED = "WEEKLY_REPORTS_ENABLED";
-    public static final String KEY_NOTIFICATION_EMAIL_RECIPIENTS = "NOTIFICATION_EMAIL_RECIPIENTS";
-
-    // System Keys
-    public static final String KEY_MAINTENANCE_MODE = "MAINTENANCE_MODE";
-    public static final String KEY_SESSION_TIMEOUT = "SESSION_TIMEOUT";
-    public static final String KEY_DEFAULT_PAGE_SIZE = "DEFAULT_PAGE_SIZE";
-
-    // Allocation Keys
-    public static final String KEY_AUTO_DEALLOCATION_ENABLED = "AUTO_DEALLOCATION_ENABLED";
-    public static final String KEY_DEALLOCATION_NOTIFY_DAYS = "DEALLOCATION_NOTIFY_DAYS";
-    public static final String KEY_MAX_ALLOCATION_PERCENTAGE = "MAX_ALLOCATION_PERCENTAGE";
-    public static final String KEY_MIN_ALLOCATION_PERCENTAGE = "MIN_ALLOCATION_PERCENTAGE";
 }
 

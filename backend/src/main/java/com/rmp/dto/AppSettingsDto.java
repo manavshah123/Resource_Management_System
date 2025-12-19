@@ -108,52 +108,5 @@ public class AppSettingsDto {
         private String peopleApiBaseUrl;
         private String scopes;
     }
-
-    // Notification settings DTO
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class NotificationConfig {
-        private Boolean emailNotificationsEnabled;
-        private Boolean benchAlertsEnabled;
-        private Boolean overallocationAlertsEnabled;
-        private Boolean weeklyReportsEnabled;
-        private String notificationEmailRecipients;
-    }
-
-    // System settings DTO
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SystemConfig {
-        private Boolean maintenanceMode;
-        private Integer sessionTimeout;
-        private Integer defaultPageSize;
-    }
-
-    // Allocation settings DTO
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class AllocationConfig {
-        private Boolean autoDeallocationEnabled;
-        private Integer deallocationNotifyDays;
-        private Integer maxAllocationPercentage;
-        private Integer minAllocationPercentage;
-    }
-
-    // Combined General settings DTO
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class GeneralConfig {
-        private NotificationConfig notifications;
-        private SystemConfig system;
-        private AllocationConfig allocation;
-    }
 }
 

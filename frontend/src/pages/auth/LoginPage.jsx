@@ -24,14 +24,7 @@ function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isLoading, error, clearError } = useAuthStore();
-  const { branding, currentTheme } = useBranding();
-
-  // Get colors from current theme
-  const colors = currentTheme?.colors || {
-    primary: '#3b82f6',
-    secondary: '#10b981',
-    sidebar: '#0f172a',
-  };
+  const { branding } = useBranding();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -161,7 +154,7 @@ function LoginPage() {
           <Link
             href="#"
             variant="body2"
-            sx={{ color: colors.primary, textDecoration: 'none' }}
+            sx={{ color: 'primary.main', textDecoration: 'none' }}
           >
             Forgot password?
           </Link>
@@ -175,9 +168,13 @@ function LoginPage() {
           disabled={isLoading}
           sx={{
             py: 1.5,
-            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+            bgcolor: 'var(--primary-color, #3b82f6)',
+            color: '#ffffff',
+            fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
             '&:hover': {
-              background: `linear-gradient(135deg, ${adjustColor(colors.primary, -10)} 0%, ${adjustColor(colors.secondary, -10)} 100%)`,
+              bgcolor: 'var(--primary-color-dark, #2563eb)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
             },
           }}
         >
@@ -210,14 +207,5 @@ function LoginPage() {
   );
 }
 
-// Helper to darken a hex color
-function adjustColor(hex, percent) {
-  const num = parseInt(hex.replace('#', ''), 16);
-  const amt = Math.round(2.55 * percent);
-  const R = Math.max(0, Math.min(255, (num >> 16) + amt));
-  const G = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amt));
-  const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
-  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
-}
-
 export default LoginPage;
+

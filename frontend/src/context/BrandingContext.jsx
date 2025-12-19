@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { settingsApi } from '@api/settingsApi';
-import { getThemeById, themePresets } from '../themes/themePresets';
+import { themePresets, getThemeById } from '../themes/themePresets';
 
 const BrandingContext = createContext(null);
 
@@ -16,29 +16,29 @@ const defaultBranding = {
 
 export function BrandingProvider({ children }) {
   const [branding, setBranding] = useState(defaultBranding);
-  const [currentTheme, setCurrentTheme] = useState(getThemeById('default'));
+  const [currentTheme, setCurrentTheme] = useState(themePresets[0]);
   const [loading, setLoading] = useState(true);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  
+  // Store the saved theme ID to revert to if preview is cancelled
+  const savedThemeIdRef = useRef('default');
 
   const fetchBranding = async () => {
     try {
       const response = await settingsApi.getPublicBranding();
       const data = response.data || {};
-      const brandingData = { ...defaultBranding, ...data };
-      setBranding(brandingData);
-      
-      // Get theme from themeId or use colors to find matching theme
-      const theme = getThemeById(data.themeId || 'default');
-      setCurrentTheme(theme);
-      applyBranding(brandingData, theme);
+      setBranding({ ...defaultBranding, ...data });
+      savedThemeIdRef.current = data.themeId || 'default';
+      applyBranding(data);
     } catch (error) {
       console.error('Failed to fetch branding:', error);
-      applyBranding(defaultBranding, getThemeById('default'));
+      applyBranding(defaultBranding);
     } finally {
       setLoading(false);
     }
   };
 
-  const applyBranding = (config, theme) => {
+  const applyBranding = (config) => {
     // Apply document title
     if (config.appName) {
       document.title = config.appName;
@@ -56,43 +56,48 @@ export function BrandingProvider({ children }) {
       link.href = config.appFavicon;
     }
 
-    // Apply theme colors as CSS custom properties
+    // Apply theme
+    const themeId = config.themeId || 'default';
+    const theme = getThemeById(themeId);
+    setCurrentTheme(theme);
     applyTheme(theme);
   };
 
   const applyTheme = (theme) => {
     const root = document.documentElement;
     const colors = theme.colors;
-    
-    // Primary colors
+
+    // Apply primary color variations
     root.style.setProperty('--primary-color', colors.primary);
     root.style.setProperty('--primary-color-light', `${colors.primary}20`);
     root.style.setProperty('--primary-color-dark', adjustColor(colors.primary, -20));
-    
-    // Secondary colors
+    root.style.setProperty('--primary-color-rgb', hexToRgb(colors.primary));
+
+    // Apply secondary color variations
     root.style.setProperty('--secondary-color', colors.secondary);
     root.style.setProperty('--secondary-color-light', `${colors.secondary}20`);
-    
-    // Sidebar colors
+    root.style.setProperty('--secondary-color-rgb', hexToRgb(colors.secondary));
+
+    // Apply sidebar colors
     root.style.setProperty('--sidebar-bg', colors.sidebar);
     root.style.setProperty('--sidebar-text', colors.sidebarText);
-    
-    // Accent colors
-    root.style.setProperty('--accent-color', colors.accent);
-    
-    // Background
-    root.style.setProperty('--background-color', colors.background);
-    
-    // Update body background for dark themes
-    if (theme.id === 'midnight') {
-      document.body.style.backgroundColor = colors.background;
-      document.body.style.color = '#e2e8f0';
-    } else {
-      document.body.style.backgroundColor = '';
-      document.body.style.color = '';
-    }
 
-    setCurrentTheme(theme);
+    // Apply accent color
+    root.style.setProperty('--accent-color', colors.accent);
+    root.style.setProperty('--accent-color-rgb', hexToRgb(colors.accent));
+
+    // Apply background color
+    root.style.setProperty('--bg-default', colors.background);
+    root.style.setProperty('--bg-paper', colors.background === '#0f172a' ? '#1e293b' : '#ffffff');
+
+    // Apply text colors based on background
+    const isDark = isColorDark(colors.background);
+    root.style.setProperty('--text-primary', isDark ? '#f1f5f9' : '#1e293b');
+    root.style.setProperty('--text-secondary', isDark ? '#94a3b8' : '#64748b');
+
+    // Apply gradient
+    root.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`);
+    root.style.setProperty('--gradient-secondary', `linear-gradient(135deg, ${colors.secondary} 0%, ${colors.primary} 100%)`);
   };
 
   // Helper to darken/lighten a hex color
@@ -105,15 +110,55 @@ export function BrandingProvider({ children }) {
     return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
   };
 
-  const refreshBranding = async () => {
-    await fetchBranding();
+  // Helper to convert hex to rgb values
+  const hexToRgb = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (result) {
+      return `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`;
+    }
+    return '59, 130, 246';
   };
 
-  const setTheme = (themeId) => {
-    const theme = getThemeById(themeId);
-    applyTheme(theme);
-    return theme;
+  // Helper to determine if a color is dark
+  const isColorDark = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return false;
+    const r = parseInt(result[1], 16);
+    const g = parseInt(result[2], 16);
+    const b = parseInt(result[3], 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance < 0.5;
   };
+
+  const refreshBranding = async () => {
+    await fetchBranding();
+    setIsPreviewMode(false);
+  };
+
+  // Preview a theme without saving (live preview)
+  const previewTheme = (themeId) => {
+    const theme = getThemeById(themeId);
+    setCurrentTheme(theme);
+    applyTheme(theme);
+    setIsPreviewMode(true);
+  };
+
+  // Revert to the last saved theme
+  const revertTheme = () => {
+    const theme = getThemeById(savedThemeIdRef.current);
+    setCurrentTheme(theme);
+    applyTheme(theme);
+    setIsPreviewMode(false);
+  };
+
+  // Commit the current preview as the saved theme
+  const commitTheme = (themeId) => {
+    savedThemeIdRef.current = themeId;
+    setIsPreviewMode(false);
+  };
+
+  // Get the saved theme ID
+  const getSavedThemeId = () => savedThemeIdRef.current;
 
   useEffect(() => {
     fetchBranding();
@@ -122,11 +167,14 @@ export function BrandingProvider({ children }) {
   return (
     <BrandingContext.Provider value={{ 
       branding, 
-      currentTheme,
       loading, 
+      currentTheme, 
+      isPreviewMode,
       refreshBranding, 
-      setTheme,
-      themePresets 
+      previewTheme,
+      revertTheme,
+      commitTheme,
+      getSavedThemeId,
     }}>
       {children}
     </BrandingContext.Provider>

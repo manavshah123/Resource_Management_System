@@ -107,35 +107,14 @@ public class AppSettingsService {
 
     private void initializeGeneralSettings() {
         List<AppSettings> generalSettings = Arrays.asList(
-            // Notification settings
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_EMAIL_NOTIFICATIONS_ENABLED, 
-                "true", "Email Notifications", "Enable email notifications", "BOOLEAN", false, false, 1),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_BENCH_ALERTS_ENABLED, 
-                "true", "Bench Alerts", "Get notified when employees go on bench", "BOOLEAN", false, false, 2),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_OVERALLOCATION_ALERTS_ENABLED, 
-                "true", "Over-allocation Alerts", "Get notified when resources are over-allocated", "BOOLEAN", false, false, 3),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_WEEKLY_REPORTS_ENABLED, 
-                "true", "Weekly Reports", "Receive weekly utilization reports", "BOOLEAN", false, false, 4),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_NOTIFICATION_EMAIL_RECIPIENTS, 
-                "", "Notification Recipients", "Comma-separated email addresses for notifications", "STRING", false, false, 5),
-            
-            // System settings
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_MAINTENANCE_MODE, 
-                "false", "Maintenance Mode", "Enable maintenance mode (read-only for non-admins)", "BOOLEAN", false, false, 10),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_SESSION_TIMEOUT, 
-                "30", "Session Timeout (minutes)", "User session timeout in minutes", "NUMBER", false, false, 11),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_DEFAULT_PAGE_SIZE, 
-                "10", "Default Page Size", "Default number of items per page", "NUMBER", false, false, 12),
-            
-            // Allocation settings
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_AUTO_DEALLOCATION_ENABLED, 
-                "true", "Auto Deallocation", "Automatically deallocate after project end", "BOOLEAN", false, false, 20),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_DEALLOCATION_NOTIFY_DAYS, 
-                "7", "Deallocation Notify Days", "Days before project end to send notifications", "NUMBER", false, false, 21),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_MAX_ALLOCATION_PERCENTAGE, 
-                "100", "Max Allocation %", "Maximum allocation percentage per resource", "NUMBER", false, false, 22),
-            createSetting(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_MIN_ALLOCATION_PERCENTAGE, 
-                "10", "Min Allocation %", "Minimum allocation percentage per resource", "NUMBER", false, false, 23)
+            createSetting(AppSettings.CATEGORY_GENERAL, "SESSION_TIMEOUT", 
+                "30", "Session Timeout (minutes)", "User session timeout in minutes", "NUMBER", false, false, 1),
+            createSetting(AppSettings.CATEGORY_GENERAL, "DEFAULT_PAGE_SIZE", 
+                "10", "Default Page Size", "Default number of items per page", "NUMBER", false, false, 2),
+            createSetting(AppSettings.CATEGORY_GENERAL, "DATE_FORMAT", 
+                "yyyy-MM-dd", "Date Format", "Default date format", "STRING", false, false, 3),
+            createSetting(AppSettings.CATEGORY_GENERAL, "TIME_ZONE", 
+                "UTC", "Time Zone", "Default time zone", "STRING", false, false, 4)
         );
         settingsRepository.saveAll(generalSettings);
     }
@@ -253,52 +232,6 @@ public class AppSettingsService {
     }
 
     // ========================================
-    // GENERAL CONFIGURATION
-    // ========================================
-
-    @Cacheable(value = "general", key = "'config'")
-    public AppSettingsDto.GeneralConfig getGeneralConfig() {
-        List<AppSettings> settings = settingsRepository.findByCategory(AppSettings.CATEGORY_GENERAL);
-        Map<String, String> map = settings.stream()
-                .collect(Collectors.toMap(AppSettings::getKey, s -> s.getValue() != null ? s.getValue() : ""));
-        
-        AppSettingsDto.NotificationConfig notifications = AppSettingsDto.NotificationConfig.builder()
-                .emailNotificationsEnabled(Boolean.parseBoolean(map.getOrDefault(AppSettings.KEY_EMAIL_NOTIFICATIONS_ENABLED, "true")))
-                .benchAlertsEnabled(Boolean.parseBoolean(map.getOrDefault(AppSettings.KEY_BENCH_ALERTS_ENABLED, "true")))
-                .overallocationAlertsEnabled(Boolean.parseBoolean(map.getOrDefault(AppSettings.KEY_OVERALLOCATION_ALERTS_ENABLED, "true")))
-                .weeklyReportsEnabled(Boolean.parseBoolean(map.getOrDefault(AppSettings.KEY_WEEKLY_REPORTS_ENABLED, "true")))
-                .notificationEmailRecipients(map.getOrDefault(AppSettings.KEY_NOTIFICATION_EMAIL_RECIPIENTS, ""))
-                .build();
-
-        AppSettingsDto.SystemConfig system = AppSettingsDto.SystemConfig.builder()
-                .maintenanceMode(Boolean.parseBoolean(map.getOrDefault(AppSettings.KEY_MAINTENANCE_MODE, "false")))
-                .sessionTimeout(parseIntSafe(map.getOrDefault(AppSettings.KEY_SESSION_TIMEOUT, "30")))
-                .defaultPageSize(parseIntSafe(map.getOrDefault(AppSettings.KEY_DEFAULT_PAGE_SIZE, "10")))
-                .build();
-
-        AppSettingsDto.AllocationConfig allocation = AppSettingsDto.AllocationConfig.builder()
-                .autoDeallocationEnabled(Boolean.parseBoolean(map.getOrDefault(AppSettings.KEY_AUTO_DEALLOCATION_ENABLED, "true")))
-                .deallocationNotifyDays(parseIntSafe(map.getOrDefault(AppSettings.KEY_DEALLOCATION_NOTIFY_DAYS, "7")))
-                .maxAllocationPercentage(parseIntSafe(map.getOrDefault(AppSettings.KEY_MAX_ALLOCATION_PERCENTAGE, "100")))
-                .minAllocationPercentage(parseIntSafe(map.getOrDefault(AppSettings.KEY_MIN_ALLOCATION_PERCENTAGE, "10")))
-                .build();
-
-        return AppSettingsDto.GeneralConfig.builder()
-                .notifications(notifications)
-                .system(system)
-                .allocation(allocation)
-                .build();
-    }
-
-    private int parseIntSafe(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
-    // ========================================
     // UPDATE OPERATIONS
     // ========================================
 
@@ -338,7 +271,7 @@ public class AppSettingsService {
         updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_SUPPORT_EMAIL, config.getSupportEmail());
         updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_COPYRIGHT_TEXT, config.getCopyrightText());
         
-        log.info("Updated branding configuration");
+        log.info("Updated branding configuration with themeId: {}", config.getThemeId());
         return getBrandingConfig();
     }
 
@@ -361,62 +294,12 @@ public class AppSettingsService {
         return getZohoConfig();
     }
 
-    @Transactional
-    @CacheEvict(value = "general", allEntries = true)
-    public AppSettingsDto.GeneralConfig updateGeneralConfig(AppSettingsDto.GeneralConfig config) {
-        // Update notification settings
-        if (config.getNotifications() != null) {
-            AppSettingsDto.NotificationConfig n = config.getNotifications();
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_EMAIL_NOTIFICATIONS_ENABLED, String.valueOf(n.getEmailNotificationsEnabled()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_BENCH_ALERTS_ENABLED, String.valueOf(n.getBenchAlertsEnabled()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_OVERALLOCATION_ALERTS_ENABLED, String.valueOf(n.getOverallocationAlertsEnabled()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_WEEKLY_REPORTS_ENABLED, String.valueOf(n.getWeeklyReportsEnabled()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_NOTIFICATION_EMAIL_RECIPIENTS, n.getNotificationEmailRecipients());
-        }
-
-        // Update system settings
-        if (config.getSystem() != null) {
-            AppSettingsDto.SystemConfig s = config.getSystem();
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_MAINTENANCE_MODE, String.valueOf(s.getMaintenanceMode()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_SESSION_TIMEOUT, String.valueOf(s.getSessionTimeout()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_DEFAULT_PAGE_SIZE, String.valueOf(s.getDefaultPageSize()));
-        }
-
-        // Update allocation settings
-        if (config.getAllocation() != null) {
-            AppSettingsDto.AllocationConfig a = config.getAllocation();
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_AUTO_DEALLOCATION_ENABLED, String.valueOf(a.getAutoDeallocationEnabled()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_DEALLOCATION_NOTIFY_DAYS, String.valueOf(a.getDeallocationNotifyDays()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_MAX_ALLOCATION_PERCENTAGE, String.valueOf(a.getMaxAllocationPercentage()));
-            updateSettingValue(AppSettings.CATEGORY_GENERAL, AppSettings.KEY_MIN_ALLOCATION_PERCENTAGE, String.valueOf(a.getMinAllocationPercentage()));
-        }
-
-        log.info("Updated general configuration");
-        return getGeneralConfig();
-    }
-
     private void updateSettingValue(String category, String key, String value) {
         settingsRepository.findByCategoryAndKey(category, key)
-                .ifPresentOrElse(
-                    setting -> {
-                        setting.setValue(value);
-                        settingsRepository.save(setting);
-                    },
-                    () -> {
-                        // Create the setting if it doesn't exist
-                        AppSettings newSetting = AppSettings.builder()
-                                .category(category)
-                                .key(key)
-                                .value(value)
-                                .displayName(key.replace("_", " ").toLowerCase())
-                                .valueType("STRING")
-                                .isSecret(false)
-                                .isRequired(false)
-                                .displayOrder(99)
-                                .build();
-                        settingsRepository.save(newSetting);
-                    }
-                );
+                .ifPresent(setting -> {
+                    setting.setValue(value);
+                    settingsRepository.save(setting);
+                });
     }
 
     private String getCategoryDisplayName(String category) {

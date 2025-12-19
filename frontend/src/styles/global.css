@@ -5,78 +5,48 @@
 }
 
 :root {
-  /* Default theme colors - will be overridden by BrandingContext */
+  /* These are default values - they will be overridden by BrandingContext */
   --primary-color: #3b82f6;
   --primary-color-light: #3b82f620;
   --primary-color-dark: #2563eb;
+  --primary-color-rgb: 59, 130, 246;
+  
   --secondary-color: #10b981;
   --secondary-color-light: #10b98120;
-  --accent-color: #06b6d4;
+  --secondary-color-rgb: 16, 185, 129;
+  
+  --accent-color: #8b5cf6;
+  
   --sidebar-bg: #0f172a;
   --sidebar-text: #ffffff;
-  --background-color: #f8fafc;
   
-  /* Static colors */
+  --bg-default: #f8fafc;
+  --bg-paper: #ffffff;
+  
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  
+  --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+  
+  /* Status colors - these remain constant */
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
-  --info: #3b82f6;
-  --bg-paper: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
   --border: #e2e8f0;
 }
 
 html,
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--background-color);
+  background-color: var(--bg-default);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
   min-height: 100vh;
-}
-
-/* MUI Button overrides to use theme colors */
-.MuiButton-containedPrimary {
-  background-color: var(--primary-color) !important;
-}
-
-.MuiButton-containedPrimary:hover {
-  background-color: var(--primary-color-dark) !important;
-}
-
-.MuiButton-outlinedPrimary {
-  border-color: var(--primary-color) !important;
-  color: var(--primary-color) !important;
-}
-
-.MuiButton-textPrimary {
-  color: var(--primary-color) !important;
-}
-
-.MuiButton-containedSecondary {
-  background-color: var(--secondary-color) !important;
-}
-
-/* Chip and badge colors */
-.MuiChip-colorPrimary {
-  background-color: var(--primary-color) !important;
-}
-
-/* Links */
-a {
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-a:hover {
-  color: var(--primary-color-dark);
 }
 
 /* Scrollbar Styles */
@@ -106,7 +76,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: var(--sidebar-bg);
+  background: var(--sidebar-bg, #0f172a);
   color: white;
   gap: 1rem;
 }
@@ -161,22 +131,7 @@ a:hover {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-primary {
   color: var(--primary-color);
-}
-
-.bg-primary {
-  background-color: var(--primary-color);
-}
-
-.bg-primary-light {
-  background-color: var(--primary-color-light);
 }
 
 /* Card Hover Effects */
@@ -277,8 +232,8 @@ a:hover {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  height: 3px;
+  background: var(--primary-color);
 }
 
 /* Table Enhancements */
@@ -305,67 +260,6 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-/* Focus ring using primary color */
-.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: var(--primary-color) !important;
-}
-
-.MuiInputLabel-root.Mui-focused {
-  color: var(--primary-color) !important;
-}
-
-/* Checkbox and Radio using primary color */
-.MuiCheckbox-colorPrimary.Mui-checked {
-  color: var(--primary-color) !important;
-}
-
-.MuiRadio-colorPrimary.Mui-checked {
-  color: var(--primary-color) !important;
-}
-
-/* Switch using primary color */
-.MuiSwitch-colorPrimary.Mui-checked {
-  color: var(--primary-color) !important;
-}
-
-.MuiSwitch-colorPrimary.Mui-checked + .MuiSwitch-track {
-  background-color: var(--primary-color) !important;
-}
-
-/* Tabs using primary color */
-.MuiTab-root.Mui-selected {
-  color: var(--primary-color) !important;
-}
-
-.MuiTabs-indicator {
-  background-color: var(--primary-color) !important;
-}
-
-/* Linear progress */
-.MuiLinearProgress-barColorPrimary {
-  background-color: var(--primary-color) !important;
-}
-
-/* Circular progress */
-.MuiCircularProgress-colorPrimary {
-  color: var(--primary-color) !important;
-}
-
-/* Slider */
-.MuiSlider-colorPrimary .MuiSlider-thumb,
-.MuiSlider-colorPrimary .MuiSlider-track {
-  background-color: var(--primary-color) !important;
-}
-
-/* Fab button */
-.MuiFab-primary {
-  background-color: var(--primary-color) !important;
-}
-
-.MuiFab-primary:hover {
-  background-color: var(--primary-color-dark) !important;
 }
 
 /* Responsive utilities */

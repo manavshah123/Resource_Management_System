@@ -12,42 +12,36 @@ function StatCard({
   loading = false,
   onClick,
 }) {
-  // Use CSS variables for primary/secondary colors, keep others static
   const colorMap = {
     primary: {
-      bg: 'var(--primary-color-light)',
-      icon: 'var(--primary-color)',
-      gradient: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-    },
-    secondary: {
-      bg: 'var(--secondary-color-light)',
-      icon: 'var(--secondary-color)',
-      gradient: 'linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%)',
+      bg: 'var(--primary-color-light, rgba(59, 130, 246, 0.1))',
+      icon: 'var(--primary-color, #3b82f6)',
+      border: 'var(--primary-color, #3b82f6)',
     },
     success: {
       bg: 'rgba(16, 185, 129, 0.1)',
       icon: '#10b981',
-      gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+      border: '#10b981',
     },
     warning: {
       bg: 'rgba(245, 158, 11, 0.1)',
       icon: '#f59e0b',
-      gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+      border: '#f59e0b',
     },
     error: {
       bg: 'rgba(239, 68, 68, 0.1)',
       icon: '#ef4444',
-      gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+      border: '#ef4444',
     },
     info: {
-      bg: 'rgba(59, 130, 246, 0.1)',
-      icon: '#3b82f6',
-      gradient: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+      bg: 'var(--secondary-color-light, rgba(16, 185, 129, 0.1))',
+      icon: 'var(--secondary-color, #10b981)',
+      border: 'var(--secondary-color, #10b981)',
     },
     purple: {
       bg: 'rgba(139, 92, 246, 0.1)',
-      icon: '#8b5cf6',
-      gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+      icon: 'var(--accent-color, #8b5cf6)',
+      border: 'var(--accent-color, #8b5cf6)',
     },
   };
 
@@ -79,8 +73,8 @@ function StatCard({
             top: 0,
             left: 0,
             right: 0,
-            height: 4,
-            background: colors.gradient,
+            height: 3,
+            background: colors.border,
             borderRadius: '12px 12px 0 0',
           },
         }}
@@ -120,8 +114,8 @@ function StatCard({
           top: 0,
           left: 0,
           right: 0,
-          height: 4,
-          background: colors.gradient,
+          height: 3,
+          background: colors.border,
           borderRadius: '12px 12px 0 0',
         },
       }}
