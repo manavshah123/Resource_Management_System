@@ -3,9 +3,15 @@ export { authApi } from './authApi';
 export { employeeApi } from './employeeApi';
 export { projectApi } from './projectApi';
 export { skillApi } from './skillApi';
+export { skillCategoryApi } from './skillCategoryApi';
 export { allocationApi } from './allocationApi';
 export { dashboardApi } from './dashboardApi';
 export { reportApi } from './reportApi';
 export { skillGapApi } from './skillGapApi';
+export { trainingApi } from './trainingApi';
+export { quizApi } from './quizApi';
+export { certificateApi } from './certificateApi';
+export { forecastingApi } from './forecastingApi';
+export { userApi } from './userApi';
+export { rolePermissionApi } from './rolePermissionApi';
 export { zohoApi } from './zohoApi';
-

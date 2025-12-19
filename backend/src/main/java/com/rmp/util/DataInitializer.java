@@ -277,50 +277,170 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createPermissions() {
-        // Create all permissions
-        List<Permission> permissions = Arrays.asList(
-                // Dashboard
-                createPermission("DASHBOARD_VIEW", "View Dashboard", "Dashboard", "Access to view dashboard"),
-                
-                // Employee Management
-                createPermission("EMPLOYEE_VIEW", "View Employees", "Employee", "View employee list and details"),
-                createPermission("EMPLOYEE_CREATE", "Create Employees", "Employee", "Create new employees"),
-                createPermission("EMPLOYEE_EDIT", "Edit Employees", "Employee", "Edit employee details"),
-                createPermission("EMPLOYEE_DELETE", "Delete Employees", "Employee", "Delete employees"),
-                
-                // Project Management
-                createPermission("PROJECT_VIEW", "View Projects", "Project", "View project list and details"),
-                createPermission("PROJECT_CREATE", "Create Projects", "Project", "Create new projects"),
-                createPermission("PROJECT_EDIT", "Edit Projects", "Project", "Edit project details"),
-                createPermission("PROJECT_DELETE", "Delete Projects", "Project", "Delete projects"),
-                
-                // Skill Management
-                createPermission("SKILL_VIEW", "View Skills", "Skill", "View skills and categories"),
-                createPermission("SKILL_MANAGE", "Manage Skills", "Skill", "Create, edit, delete skills"),
-                
-                // Training Management
-                createPermission("TRAINING_VIEW", "View Trainings", "Training", "View training modules"),
-                createPermission("TRAINING_MANAGE", "Manage Trainings", "Training", "Create, edit, delete trainings"),
-                createPermission("TRAINING_ASSIGN", "Assign Trainings", "Training", "Assign trainings to employees"),
-                
-                // Allocation Management
-                createPermission("ALLOCATION_VIEW", "View Allocations", "Allocation", "View allocations"),
-                createPermission("ALLOCATION_MANAGE", "Manage Allocations", "Allocation", "Create and manage allocations"),
-                
-                // Reports
-                createPermission("REPORT_VIEW", "View Reports", "Report", "Access reports"),
-                createPermission("REPORT_EXPORT", "Export Reports", "Report", "Export reports to PDF/Excel"),
-                
-                // User Management
-                createPermission("USER_VIEW", "View Users", "User", "View user list"),
-                createPermission("USER_MANAGE", "Manage Users", "User", "Create, edit, delete users"),
-                createPermission("ROLE_MANAGE", "Manage Roles", "User", "Manage role permissions"),
-                
-                // Forecasting
-                createPermission("FORECASTING_VIEW", "View Forecasting", "Forecasting", "Access forecasting data")
-        );
+        List<Permission> permissions = new ArrayList<>();
+        
+        // ========================================
+        // DASHBOARD MODULE
+        // ========================================
+        permissions.add(createPermission("DASHBOARD_VIEW", "View Dashboard", "Dashboard", "Access to view main dashboard"));
+        permissions.add(createPermission("DASHBOARD_ANALYTICS", "View Analytics", "Dashboard", "Access to advanced analytics"));
+
+        // ========================================
+        // EMPLOYEE MODULE
+        // ========================================
+        permissions.add(createPermission("EMPLOYEE_VIEW", "View Own Profile", "Employee", "View own employee profile"));
+        permissions.add(createPermission("EMPLOYEE_VIEW_ALL", "View All Employees", "Employee", "View all employee profiles"));
+        permissions.add(createPermission("EMPLOYEE_CREATE", "Create Employees", "Employee", "Create new employee records"));
+        permissions.add(createPermission("EMPLOYEE_EDIT", "Edit Employees", "Employee", "Edit employee details"));
+        permissions.add(createPermission("EMPLOYEE_DELETE", "Delete Employees", "Employee", "Delete employee records"));
+        permissions.add(createPermission("EMPLOYEE_IMPORT", "Import Employees", "Employee", "Bulk import employees"));
+        permissions.add(createPermission("EMPLOYEE_EXPORT", "Export Employees", "Employee", "Export employee data"));
+
+        // ========================================
+        // PROJECT MODULE
+        // ========================================
+        permissions.add(createPermission("PROJECT_VIEW", "View Assigned Projects", "Project", "View assigned projects"));
+        permissions.add(createPermission("PROJECT_VIEW_ALL", "View All Projects", "Project", "View all projects"));
+        permissions.add(createPermission("PROJECT_CREATE", "Create Projects", "Project", "Create new projects"));
+        permissions.add(createPermission("PROJECT_EDIT", "Edit Projects", "Project", "Edit project details"));
+        permissions.add(createPermission("PROJECT_DELETE", "Delete Projects", "Project", "Delete projects"));
+        permissions.add(createPermission("PROJECT_MANAGE_TEAM", "Manage Project Team", "Project", "Add/remove team members"));
+
+        // ========================================
+        // SKILL MODULE
+        // ========================================
+        permissions.add(createPermission("SKILL_VIEW", "View Skills", "Skill", "View skill catalog"));
+        permissions.add(createPermission("SKILL_CREATE", "Create Skills", "Skill", "Add new skills"));
+        permissions.add(createPermission("SKILL_EDIT", "Edit Skills", "Skill", "Modify skill details"));
+        permissions.add(createPermission("SKILL_DELETE", "Delete Skills", "Skill", "Remove skills"));
+        permissions.add(createPermission("SKILL_MANAGE", "Manage All Skills", "Skill", "Full skill management access"));
+
+        // ========================================
+        // SKILL CATEGORY MODULE
+        // ========================================
+        permissions.add(createPermission("SKILL_CATEGORY_VIEW", "View Skill Categories", "Skill Category", "View skill categories"));
+        permissions.add(createPermission("SKILL_CATEGORY_MANAGE", "Manage Skill Categories", "Skill Category", "Create/edit/delete categories"));
+
+        // ========================================
+        // SKILL GAP MODULE
+        // ========================================
+        permissions.add(createPermission("SKILL_GAP_VIEW", "View Skill Gap Analysis", "Skill Gap", "View skill gap reports"));
+        permissions.add(createPermission("SKILL_GAP_ANALYZE", "Run Skill Gap Analysis", "Skill Gap", "Execute skill gap analysis"));
+
+        // ========================================
+        // TRAINING MODULE
+        // ========================================
+        permissions.add(createPermission("TRAINING_VIEW", "View Assigned Trainings", "Training", "View assigned training modules"));
+        permissions.add(createPermission("TRAINING_VIEW_ALL", "View All Trainings", "Training", "View all training content"));
+        permissions.add(createPermission("TRAINING_CREATE", "Create Trainings", "Training", "Create new training modules"));
+        permissions.add(createPermission("TRAINING_EDIT", "Edit Trainings", "Training", "Modify training content"));
+        permissions.add(createPermission("TRAINING_DELETE", "Delete Trainings", "Training", "Remove training modules"));
+        permissions.add(createPermission("TRAINING_MANAGE", "Manage All Trainings", "Training", "Full training management"));
+        permissions.add(createPermission("TRAINING_ASSIGN", "Assign Trainings", "Training", "Assign trainings to employees"));
+        permissions.add(createPermission("TRAINING_COMPLETE", "Complete Trainings", "Training", "Mark trainings as complete"));
+
+        // ========================================
+        // QUIZ MODULE
+        // ========================================
+        permissions.add(createPermission("QUIZ_VIEW", "View Quizzes", "Quiz", "View quiz listings"));
+        permissions.add(createPermission("QUIZ_CREATE", "Create Quizzes", "Quiz", "Create new quizzes"));
+        permissions.add(createPermission("QUIZ_EDIT", "Edit Quizzes", "Quiz", "Modify quiz content"));
+        permissions.add(createPermission("QUIZ_DELETE", "Delete Quizzes", "Quiz", "Remove quizzes"));
+        permissions.add(createPermission("QUIZ_MANAGE", "Manage All Quizzes", "Quiz", "Full quiz management"));
+        permissions.add(createPermission("QUIZ_ASSIGN", "Assign Quizzes", "Quiz", "Assign quizzes to employees"));
+        permissions.add(createPermission("QUIZ_TAKE", "Take Quizzes", "Quiz", "Attempt assigned quizzes"));
+        permissions.add(createPermission("QUIZ_VIEW_RESULTS", "View Quiz Results", "Quiz", "View quiz results and analytics"));
+
+        // ========================================
+        // CERTIFICATE MODULE
+        // ========================================
+        permissions.add(createPermission("CERTIFICATE_VIEW", "View Own Certificates", "Certificate", "View own certificates"));
+        permissions.add(createPermission("CERTIFICATE_VIEW_ALL", "View All Certificates", "Certificate", "View all employee certificates"));
+        permissions.add(createPermission("CERTIFICATE_CREATE", "Add Certificates", "Certificate", "Add new certificates"));
+        permissions.add(createPermission("CERTIFICATE_EDIT", "Edit Certificates", "Certificate", "Modify certificate details"));
+        permissions.add(createPermission("CERTIFICATE_DELETE", "Delete Certificates", "Certificate", "Remove certificates"));
+        permissions.add(createPermission("CERTIFICATE_VERIFY", "Verify Certificates", "Certificate", "Verify certificate authenticity"));
+
+        // ========================================
+        // ALLOCATION MODULE
+        // ========================================
+        permissions.add(createPermission("ALLOCATION_VIEW", "View Own Allocations", "Allocation", "View own project allocations"));
+        permissions.add(createPermission("ALLOCATION_VIEW_ALL", "View All Allocations", "Allocation", "View all allocations"));
+        permissions.add(createPermission("ALLOCATION_CREATE", "Create Allocations", "Allocation", "Create new allocations"));
+        permissions.add(createPermission("ALLOCATION_EDIT", "Edit Allocations", "Allocation", "Modify allocation details"));
+        permissions.add(createPermission("ALLOCATION_DELETE", "Delete Allocations", "Allocation", "Remove allocations"));
+        permissions.add(createPermission("ALLOCATION_MANAGE", "Manage All Allocations", "Allocation", "Full allocation management"));
+
+        // ========================================
+        // REPORT MODULE
+        // ========================================
+        permissions.add(createPermission("REPORT_VIEW", "View Reports", "Report", "View available reports"));
+        permissions.add(createPermission("REPORT_VIEW_ALL", "View All Reports", "Report", "View all organizational reports"));
+        permissions.add(createPermission("REPORT_GENERATE", "Generate Reports", "Report", "Generate new reports"));
+        permissions.add(createPermission("REPORT_EXPORT", "Export Reports", "Report", "Export reports to PDF/Excel"));
+        permissions.add(createPermission("REPORT_SCHEDULE", "Schedule Reports", "Report", "Schedule automated reports"));
+
+        // ========================================
+        // FORECASTING MODULE
+        // ========================================
+        permissions.add(createPermission("FORECASTING_VIEW", "View Forecasts", "Forecasting", "View resource forecasting"));
+        permissions.add(createPermission("FORECASTING_ANALYZE", "Run Forecast Analysis", "Forecasting", "Execute forecast analysis"));
+        permissions.add(createPermission("FORECASTING_EXPORT", "Export Forecasts", "Forecasting", "Export forecast data"));
+
+        // ========================================
+        // USER MANAGEMENT MODULE
+        // ========================================
+        permissions.add(createPermission("USER_VIEW", "View Users", "User Management", "View user list"));
+        permissions.add(createPermission("USER_CREATE", "Create Users", "User Management", "Create new user accounts"));
+        permissions.add(createPermission("USER_EDIT", "Edit Users", "User Management", "Modify user details"));
+        permissions.add(createPermission("USER_DELETE", "Delete Users", "User Management", "Remove user accounts"));
+        permissions.add(createPermission("USER_MANAGE", "Manage All Users", "User Management", "Full user management access"));
+        permissions.add(createPermission("USER_RESET_PASSWORD", "Reset Passwords", "User Management", "Reset user passwords"));
+        permissions.add(createPermission("USER_TOGGLE_STATUS", "Toggle User Status", "User Management", "Enable/disable users"));
+
+        // ========================================
+        // ROLE & PERMISSION MODULE
+        // ========================================
+        permissions.add(createPermission("ROLE_VIEW", "View Roles", "Roles & Permissions", "View role configurations"));
+        permissions.add(createPermission("ROLE_MANAGE", "Manage Roles", "Roles & Permissions", "Create/edit/delete roles"));
+        permissions.add(createPermission("PERMISSION_VIEW", "View Permissions", "Roles & Permissions", "View permission list"));
+        permissions.add(createPermission("PERMISSION_ASSIGN", "Assign Permissions", "Roles & Permissions", "Assign permissions to roles"));
+
+        // ========================================
+        // INTEGRATION MODULE (ZOHO)
+        // ========================================
+        permissions.add(createPermission("INTEGRATION_VIEW", "View Integrations", "Integration", "View integration status"));
+        permissions.add(createPermission("INTEGRATION_CONNECT", "Connect Integrations", "Integration", "Connect to external services"));
+        permissions.add(createPermission("INTEGRATION_DISCONNECT", "Disconnect Integrations", "Integration", "Disconnect from services"));
+        permissions.add(createPermission("INTEGRATION_SYNC", "Sync Data", "Integration", "Synchronize external data"));
+        permissions.add(createPermission("INTEGRATION_IMPORT", "Import Data", "Integration", "Import data from integrations"));
+        permissions.add(createPermission("INTEGRATION_CONFIGURE", "Configure Integrations", "Integration", "Configure integration settings"));
+
+        // ========================================
+        // LEAVE MODULE
+        // ========================================
+        permissions.add(createPermission("LEAVE_VIEW", "View Own Leaves", "Leave", "View own leave requests"));
+        permissions.add(createPermission("LEAVE_VIEW_ALL", "View All Leaves", "Leave", "View all leave requests"));
+        permissions.add(createPermission("LEAVE_CREATE", "Request Leave", "Leave", "Create leave requests"));
+        permissions.add(createPermission("LEAVE_APPROVE", "Approve Leave", "Leave", "Approve leave requests"));
+        permissions.add(createPermission("LEAVE_REJECT", "Reject Leave", "Leave", "Reject leave requests"));
+        permissions.add(createPermission("LEAVE_MANAGE", "Manage All Leaves", "Leave", "Full leave management"));
+
+        // ========================================
+        // SETTINGS MODULE
+        // ========================================
+        permissions.add(createPermission("SETTINGS_VIEW", "View Settings", "Settings", "View application settings"));
+        permissions.add(createPermission("SETTINGS_MANAGE", "Manage Settings", "Settings", "Modify application settings"));
+        permissions.add(createPermission("SETTINGS_SYSTEM", "System Settings", "Settings", "Manage system-level settings"));
+
+        // ========================================
+        // AUDIT MODULE
+        // ========================================
+        permissions.add(createPermission("AUDIT_VIEW", "View Audit Logs", "Audit", "View audit trail"));
+        permissions.add(createPermission("AUDIT_EXPORT", "Export Audit Logs", "Audit", "Export audit data"));
+
         permissionRepository.saveAll(permissions);
-        log.info("Created {} permissions", permissions.size());
+        log.info("Created {} permissions across all modules", permissions.size());
 
         // Assign permissions to roles
         assignDefaultRolePermissions();
@@ -337,7 +457,9 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void assignDefaultRolePermissions() {
-        // Admin gets all permissions
+        // ========================================
+        // ADMIN ROLE - Full system access
+        // ========================================
         List<Permission> allPermissions = permissionRepository.findAll();
         for (Permission p : allPermissions) {
             rolePermissionRepository.save(RolePermission.builder()
@@ -345,53 +467,129 @@ public class DataInitializer implements CommandLineRunner {
                     .permission(p)
                     .build());
         }
+        log.info("Assigned {} permissions to ADMIN role", allPermissions.size());
 
-        // PM permissions
+        // ========================================
+        // PROJECT MANAGER (PM) ROLE
+        // Focus: Project management, team allocation, reporting
+        // ========================================
         List<String> pmPermissions = Arrays.asList(
-                "DASHBOARD_VIEW", "EMPLOYEE_VIEW", "PROJECT_VIEW", "PROJECT_CREATE", "PROJECT_EDIT",
-                "SKILL_VIEW", "TRAINING_VIEW", "ALLOCATION_VIEW", "ALLOCATION_MANAGE",
-                "REPORT_VIEW", "REPORT_EXPORT", "FORECASTING_VIEW"
+                // Dashboard
+                "DASHBOARD_VIEW", "DASHBOARD_ANALYTICS",
+                // Employee - View only
+                "EMPLOYEE_VIEW", "EMPLOYEE_VIEW_ALL",
+                // Project - Full management
+                "PROJECT_VIEW", "PROJECT_VIEW_ALL", "PROJECT_CREATE", "PROJECT_EDIT", "PROJECT_MANAGE_TEAM",
+                // Skills - View
+                "SKILL_VIEW", "SKILL_CATEGORY_VIEW",
+                // Skill Gap
+                "SKILL_GAP_VIEW", "SKILL_GAP_ANALYZE",
+                // Training - View and assign
+                "TRAINING_VIEW", "TRAINING_VIEW_ALL", "TRAINING_ASSIGN",
+                // Quiz - View and results
+                "QUIZ_VIEW", "QUIZ_VIEW_RESULTS",
+                // Certificate - View
+                "CERTIFICATE_VIEW", "CERTIFICATE_VIEW_ALL",
+                // Allocation - Full management
+                "ALLOCATION_VIEW", "ALLOCATION_VIEW_ALL", "ALLOCATION_CREATE", "ALLOCATION_EDIT", "ALLOCATION_DELETE", "ALLOCATION_MANAGE",
+                // Reports - Full access
+                "REPORT_VIEW", "REPORT_VIEW_ALL", "REPORT_GENERATE", "REPORT_EXPORT",
+                // Forecasting
+                "FORECASTING_VIEW", "FORECASTING_ANALYZE", "FORECASTING_EXPORT",
+                // Integration - View and sync
+                "INTEGRATION_VIEW", "INTEGRATION_SYNC",
+                // Leave - Approve team members
+                "LEAVE_VIEW", "LEAVE_VIEW_ALL", "LEAVE_APPROVE", "LEAVE_REJECT"
         );
-        for (String code : pmPermissions) {
-            permissionRepository.findByCode(code).ifPresent(p -> 
-                rolePermissionRepository.save(RolePermission.builder()
-                        .role(User.Role.PM)
-                        .permission(p)
-                        .build())
-            );
-        }
+        assignPermissionsToRole(User.Role.PM, pmPermissions);
+        log.info("Assigned {} permissions to PM role", pmPermissions.size());
 
-        // HR permissions
+        // ========================================
+        // HR ROLE
+        // Focus: Employee management, training, skills, certificates
+        // ========================================
         List<String> hrPermissions = Arrays.asList(
-                "DASHBOARD_VIEW", "EMPLOYEE_VIEW", "EMPLOYEE_CREATE", "EMPLOYEE_EDIT",
-                "PROJECT_VIEW", "SKILL_VIEW", "SKILL_MANAGE",
-                "TRAINING_VIEW", "TRAINING_MANAGE", "TRAINING_ASSIGN",
-                "REPORT_VIEW", "FORECASTING_VIEW"
+                // Dashboard
+                "DASHBOARD_VIEW", "DASHBOARD_ANALYTICS",
+                // Employee - Full management
+                "EMPLOYEE_VIEW", "EMPLOYEE_VIEW_ALL", "EMPLOYEE_CREATE", "EMPLOYEE_EDIT", "EMPLOYEE_DELETE", "EMPLOYEE_IMPORT", "EMPLOYEE_EXPORT",
+                // Project - View only
+                "PROJECT_VIEW", "PROJECT_VIEW_ALL",
+                // Skills - Full management
+                "SKILL_VIEW", "SKILL_CREATE", "SKILL_EDIT", "SKILL_DELETE", "SKILL_MANAGE",
+                // Skill Categories
+                "SKILL_CATEGORY_VIEW", "SKILL_CATEGORY_MANAGE",
+                // Skill Gap
+                "SKILL_GAP_VIEW", "SKILL_GAP_ANALYZE",
+                // Training - Full management
+                "TRAINING_VIEW", "TRAINING_VIEW_ALL", "TRAINING_CREATE", "TRAINING_EDIT", "TRAINING_DELETE", "TRAINING_MANAGE", "TRAINING_ASSIGN",
+                // Quiz - Full management
+                "QUIZ_VIEW", "QUIZ_CREATE", "QUIZ_EDIT", "QUIZ_DELETE", "QUIZ_MANAGE", "QUIZ_ASSIGN", "QUIZ_VIEW_RESULTS",
+                // Certificate - Full management
+                "CERTIFICATE_VIEW", "CERTIFICATE_VIEW_ALL", "CERTIFICATE_CREATE", "CERTIFICATE_EDIT", "CERTIFICATE_DELETE", "CERTIFICATE_VERIFY",
+                // Allocation - View
+                "ALLOCATION_VIEW", "ALLOCATION_VIEW_ALL",
+                // Reports
+                "REPORT_VIEW", "REPORT_VIEW_ALL", "REPORT_GENERATE", "REPORT_EXPORT",
+                // Forecasting
+                "FORECASTING_VIEW",
+                // User Management - Limited
+                "USER_VIEW", "USER_CREATE", "USER_EDIT", "USER_RESET_PASSWORD", "USER_TOGGLE_STATUS",
+                // Roles - View only
+                "ROLE_VIEW", "PERMISSION_VIEW",
+                // Integration
+                "INTEGRATION_VIEW", "INTEGRATION_IMPORT",
+                // Leave - Full management
+                "LEAVE_VIEW", "LEAVE_VIEW_ALL", "LEAVE_APPROVE", "LEAVE_REJECT", "LEAVE_MANAGE",
+                // Audit
+                "AUDIT_VIEW"
         );
-        for (String code : hrPermissions) {
-            permissionRepository.findByCode(code).ifPresent(p -> 
-                rolePermissionRepository.save(RolePermission.builder()
-                        .role(User.Role.HR)
-                        .permission(p)
-                        .build())
-            );
-        }
+        assignPermissionsToRole(User.Role.HR, hrPermissions);
+        log.info("Assigned {} permissions to HR role", hrPermissions.size());
 
-        // Employee permissions
+        // ========================================
+        // EMPLOYEE ROLE
+        // Focus: Self-service, own data, assigned trainings
+        // ========================================
         List<String> employeePermissions = Arrays.asList(
-                "DASHBOARD_VIEW", "EMPLOYEE_VIEW", "PROJECT_VIEW", "SKILL_VIEW",
-                "TRAINING_VIEW"
+                // Dashboard
+                "DASHBOARD_VIEW",
+                // Employee - Own profile only
+                "EMPLOYEE_VIEW",
+                // Project - View assigned
+                "PROJECT_VIEW",
+                // Skills - View
+                "SKILL_VIEW", "SKILL_CATEGORY_VIEW",
+                // Skill Gap - Own analysis
+                "SKILL_GAP_VIEW",
+                // Training - View assigned, complete
+                "TRAINING_VIEW", "TRAINING_COMPLETE",
+                // Quiz - Take assigned
+                "QUIZ_VIEW", "QUIZ_TAKE",
+                // Certificate - Own certificates
+                "CERTIFICATE_VIEW", "CERTIFICATE_CREATE",
+                // Allocation - View own
+                "ALLOCATION_VIEW",
+                // Leave - Own leaves
+                "LEAVE_VIEW", "LEAVE_CREATE",
+                // Settings - View
+                "SETTINGS_VIEW"
         );
-        for (String code : employeePermissions) {
+        assignPermissionsToRole(User.Role.EMPLOYEE, employeePermissions);
+        log.info("Assigned {} permissions to EMPLOYEE role", employeePermissions.size());
+
+        log.info("Completed assigning default permissions to all roles");
+    }
+
+    private void assignPermissionsToRole(User.Role role, List<String> permissionCodes) {
+        for (String code : permissionCodes) {
             permissionRepository.findByCode(code).ifPresent(p -> 
                 rolePermissionRepository.save(RolePermission.builder()
-                        .role(User.Role.EMPLOYEE)
+                        .role(role)
                         .permission(p)
                         .build())
             );
         }
-
-        log.info("Assigned default permissions to roles");
     }
 
     private List<Employee> createUsers() {

@@ -57,6 +57,7 @@ import {
 } from '@mui/icons-material';
 import { PageHeader } from '@components/common';
 import { userApi } from '@api/userApi';
+import { rolePermissionApi } from '@api/rolePermissionApi';
 import { employeeApi } from '@api/employeeApi';
 
 const ROLE_COLORS = {
@@ -118,18 +119,38 @@ function UserManagementPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [usersRes, rolesRes, permissionsRes, rolePermsRes, statsRes, employeesRes] = await Promise.all([
+      const [usersRes, rolePermsRes, permissionsRes, statsRes, employeesRes] = await Promise.all([
         userApi.getAllList(),
-        userApi.getRoles(),
-        userApi.getPermissionsByModule(),
-        userApi.getAllRolePermissions(),
+        rolePermissionApi.getAllRolePermissions(),
+        rolePermissionApi.getPermissionsByModule(),
         userApi.getStats(),
         employeeApi.getAll({ size: 100 }),
       ]);
       setUsers(usersRes.data || []);
-      setRoles(rolesRes.data || []);
-      setPermissions(permissionsRes.data || {});
-      setRolePermissions(rolePermsRes.data || {});
+      
+      // Process role permissions from new API format
+      const rolePermsData = rolePermsRes.data || [];
+      const rolesData = rolePermsData.map(rp => ({
+        code: rp.role,
+        name: rp.roleName,
+        description: rp.roleDescription,
+      }));
+      const rolePermsMap = {};
+      rolePermsData.forEach(rp => {
+        rolePermsMap[rp.role] = rp.permissions?.map(p => p.code) || [];
+      });
+      
+      setRoles(rolesData);
+      setRolePermissions(rolePermsMap);
+      
+      // Process permissions by module
+      const permsData = permissionsRes.data || [];
+      const permsMap = {};
+      permsData.forEach(module => {
+        permsMap[module.module] = module.permissions || [];
+      });
+      setPermissions(permsMap);
+      
       setStats(statsRes.data || { total: 0, active: 0, inactive: 0 });
       setEmployees(employeesRes.data?.content || employeesRes.data || []);
     } catch (err) {
@@ -230,12 +251,13 @@ function UserManagementPage() {
 
   const handleSaveRolePermissions = async (roleCode, selectedPerms) => {
     try {
-      await userApi.assignPermissionsToRole(roleCode, selectedPerms);
+      await rolePermissionApi.updateRolePermissions(roleCode, selectedPerms);
       showSnackbar('Role permissions updated successfully', 'success');
       fetchData();
       setRoleDialogOpen(false);
     } catch (err) {
-      showSnackbar('Failed to update permissions', 'error');
+      const errorMessage = err.response?.data?.message || 'Failed to update permissions';
+      showSnackbar(errorMessage, 'error');
     }
   };
 
