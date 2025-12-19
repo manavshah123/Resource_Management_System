@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import App from './App';
 import theme from './styles/theme';
+import { BrandingProvider } from './context/BrandingContext';
 import './styles/global.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -11,7 +12,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <App />
+        <BrandingProvider>
+          <App />
+        </BrandingProvider>
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>

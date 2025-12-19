@@ -33,6 +33,7 @@ import {
 } from '@mui/icons-material';
 import { useUIStore } from '@store/uiStore';
 import { useAuthStore } from '@store/authStore';
+import { useBranding } from '../../context/BrandingContext';
 
 const menuItems = [
   { title: 'Dashboard', icon: DashboardIcon, path: '/dashboard', roles: ['ADMIN', 'PM', 'HR', 'EMPLOYEE'], permission: 'DASHBOARD_VIEW' },
@@ -61,6 +62,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
   
   const { sidebarCollapsed, toggleSidebarCollapse } = useUIStore();
   const { hasAnyRole, hasPermission, user } = useAuthStore();
+  const { branding } = useBranding();
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -118,34 +120,53 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: 2,
-              background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <Typography variant="h6" sx={{ color: 'white', fontWeight: 700 }}>
-              R
-            </Typography>
-          </Box>
+          {branding.appLogo ? (
+            <Box
+              component="img"
+              src={branding.appLogo}
+              alt={branding.appName}
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                objectFit: 'contain',
+                flexShrink: 0,
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                background: `linear-gradient(135deg, ${branding.primaryColor || '#06b6d4'} 0%, ${branding.secondaryColor || '#0891b2'} 100%)`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Typography variant="h6" sx={{ color: 'white', fontWeight: 700 }}>
+                {(branding.appName || 'RMP').charAt(0)}
+              </Typography>
+            </Box>
+          )}
           {!sidebarCollapsed && (
             <Typography
               variant="h6"
               sx={{
                 fontWeight: 700,
-                background: 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)',
+                background: `linear-gradient(135deg, ${branding.primaryColor || '#06b6d4'} 0%, ${branding.secondaryColor || '#22d3ee'} 100%)`,
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
+                maxWidth: 150,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
             >
-              RMP
+              {branding.appName || 'RMP'}
             </Typography>
           )}
         </Box>

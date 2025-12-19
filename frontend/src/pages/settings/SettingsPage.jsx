@@ -38,6 +38,7 @@ import {
 } from '@mui/icons-material';
 import { PageHeader } from '@components/common';
 import { settingsApi } from '@api/settingsApi';
+import { useBranding } from '../../context/BrandingContext';
 
 function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -71,6 +72,7 @@ function SettingsPage() {
   });
 
   const [showSecret, setShowSecret] = useState(false);
+  const { refreshBranding } = useBranding();
 
   useEffect(() => {
     fetchSettings();
@@ -97,7 +99,8 @@ function SettingsPage() {
     try {
       setSaving(true);
       await settingsApi.updateBranding(branding);
-      showSnackbar('Branding settings saved successfully', 'success');
+      await refreshBranding(); // Apply changes immediately
+      showSnackbar('Branding settings saved and applied!', 'success');
     } catch (error) {
       console.error('Failed to save branding:', error);
       showSnackbar('Failed to save branding settings', 'error');
@@ -154,7 +157,7 @@ function SettingsPage() {
 
         {/* Branding Tab */}
         {tabValue === 0 && (
-          <CardContent>
+            <CardContent>
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                 White Label Configuration
@@ -408,7 +411,7 @@ function SettingsPage() {
                   onChange={(e) => setZoho({ ...zoho, peopleApiBaseUrl: e.target.value })}
                   size="small"
                 />
-              </Grid>
+        </Grid>
 
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
@@ -431,7 +434,7 @@ function SettingsPage() {
 
         {/* General Settings Tab */}
         {tabValue === 2 && (
-          <CardContent>
+            <CardContent>
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
                 General Settings
@@ -446,66 +449,66 @@ function SettingsPage() {
                 <Card variant="outlined">
                   <CardContent>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                      Notifications
-                    </Typography>
-                    <List disablePadding>
-                      <ListItem disableGutters>
-                        <ListItemText
-                          primary="Email Notifications"
-                          secondary="Receive important updates via email"
-                        />
-                        <ListItemSecondaryAction>
+                Notifications
+              </Typography>
+              <List disablePadding>
+                <ListItem disableGutters>
+                  <ListItemText
+                    primary="Email Notifications"
+                    secondary="Receive important updates via email"
+                  />
+                  <ListItemSecondaryAction>
                           <Switch defaultChecked />
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                      <Divider />
-                      <ListItem disableGutters>
-                        <ListItemText
-                          primary="Bench Alerts"
-                          secondary="Get notified when employees go on bench"
-                        />
-                        <ListItemSecondaryAction>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                <Divider />
+                <ListItem disableGutters>
+                  <ListItemText
+                    primary="Bench Alerts"
+                    secondary="Get notified when employees go on bench"
+                  />
+                  <ListItemSecondaryAction>
                           <Switch defaultChecked />
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                      <Divider />
-                      <ListItem disableGutters>
-                        <ListItemText
-                          primary="Over-allocation Alerts"
-                          secondary="Get notified when resources are over-allocated"
-                        />
-                        <ListItemSecondaryAction>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                <Divider />
+                <ListItem disableGutters>
+                  <ListItemText
+                    primary="Over-allocation Alerts"
+                    secondary="Get notified when resources are over-allocated"
+                  />
+                  <ListItemSecondaryAction>
                           <Switch defaultChecked />
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                      <Divider />
-                      <ListItem disableGutters>
-                        <ListItemText
-                          primary="Weekly Reports"
-                          secondary="Receive weekly utilization reports"
-                        />
-                        <ListItemSecondaryAction>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                <Divider />
+                <ListItem disableGutters>
+                  <ListItemText
+                    primary="Weekly Reports"
+                    secondary="Receive weekly utilization reports"
+                  />
+                  <ListItemSecondaryAction>
                           <Switch defaultChecked />
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                    </List>
-                  </CardContent>
-                </Card>
-              </Grid>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
 
               <Grid item xs={12} md={6}>
                 <Card variant="outlined">
-                  <CardContent>
+            <CardContent>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                      System
-                    </Typography>
-                    <Alert severity="warning" sx={{ mb: 2 }}>
-                      Maintenance mode will make the system read-only for all users except admins.
-                    </Alert>
-                    <FormControlLabel
+                System
+              </Typography>
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                Maintenance mode will make the system read-only for all users except admins.
+              </Alert>
+              <FormControlLabel
                       control={<Switch color="warning" />}
-                      label="Maintenance Mode"
-                    />
+                label="Maintenance Mode"
+              />
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
                       Allocation Settings
@@ -521,20 +524,20 @@ function SettingsPage() {
                       defaultValue={7}
                       size="small"
                       sx={{ mt: 2 }}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
+              />
+            </CardContent>
+          </Card>
+        </Grid>
 
-              <Grid item xs={12}>
+        <Grid item xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-                  <Button variant="outlined">Cancel</Button>
+            <Button variant="outlined">Cancel</Button>
                   <Button variant="contained" startIcon={<SaveIcon />}>
-                    Save Settings
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
+              Save Settings
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
           </CardContent>
         )}
       </Card>
