@@ -62,7 +62,16 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
   
   const { sidebarCollapsed, toggleSidebarCollapse } = useUIStore();
   const { hasAnyRole, hasPermission, user } = useAuthStore();
-  const { branding } = useBranding();
+  const { branding, currentTheme } = useBranding();
+
+  // Get colors from current theme
+  const colors = currentTheme?.colors || {
+    primary: '#3b82f6',
+    secondary: '#10b981',
+    sidebar: '#0f172a',
+    sidebarText: '#ffffff',
+    accent: '#06b6d4',
+  };
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -104,8 +113,8 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#0f172a',
-        color: 'white',
+        bgcolor: colors.sidebar,
+        color: colors.sidebarText,
       }}
     >
       {/* Logo */}
@@ -115,7 +124,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: sidebarCollapsed ? 'center' : 'space-between',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          borderBottom: `1px solid ${colors.sidebarText}15`,
           minHeight: 64,
         }}
       >
@@ -139,7 +148,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
                 width: 40,
                 height: 40,
                 borderRadius: 2,
-                background: `linear-gradient(135deg, ${branding.primaryColor || '#06b6d4'} 0%, ${branding.secondaryColor || '#0891b2'} 100%)`,
+                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -156,7 +165,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
               variant="h6"
               sx={{
                 fontWeight: 700,
-                background: `linear-gradient(135deg, ${branding.primaryColor || '#06b6d4'} 0%, ${branding.secondaryColor || '#22d3ee'} 100%)`,
+                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -173,7 +182,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
         {!isMobile && !sidebarCollapsed && (
           <IconButton
             onClick={toggleSidebarCollapse}
-            sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+            sx={{ color: `${colors.sidebarText}99` }}
           >
             <ChevronLeftIcon />
           </IconButton>
@@ -185,7 +194,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
           <IconButton
             onClick={toggleSidebarCollapse}
-            sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+            sx={{ color: `${colors.sidebarText}99` }}
           >
             <ChevronRightIcon />
           </IconButton>
@@ -205,10 +214,10 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
                     minHeight: 48,
                     justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                     px: sidebarCollapsed ? 1.5 : 2,
-                    bgcolor: isActive(item.path) ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
-                    borderLeft: isActive(item.path) ? '3px solid #06b6d4' : '3px solid transparent',
+                    bgcolor: isActive(item.path) ? `${colors.primary}25` : 'transparent',
+                    borderLeft: isActive(item.path) ? `3px solid ${colors.primary}` : '3px solid transparent',
                     '&:hover': {
-                      bgcolor: 'rgba(255, 255, 255, 0.08)',
+                      bgcolor: `${colors.sidebarText}10`,
                     },
                   }}
                 >
@@ -217,7 +226,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
                       minWidth: 0,
                       mr: sidebarCollapsed ? 0 : 2,
                       justifyContent: 'center',
-                      color: isActive(item.path) ? '#06b6d4' : 'rgba(255, 255, 255, 0.7)',
+                      color: isActive(item.path) ? colors.primary : `${colors.sidebarText}bb`,
                     }}
                   >
                     <item.icon />
@@ -229,7 +238,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
                         '& .MuiListItemText-primary': {
                           fontSize: '0.9rem',
                           fontWeight: isActive(item.path) ? 600 : 400,
-                          color: isActive(item.path) ? '#06b6d4' : 'rgba(255, 255, 255, 0.9)',
+                          color: isActive(item.path) ? colors.primary : `${colors.sidebarText}ee`,
                         },
                       }}
                     />
@@ -243,7 +252,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
 
       {/* Bottom Navigation */}
       {filteredBottomItems.length > 0 && (
-        <Box sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+        <Box sx={{ borderTop: `1px solid ${colors.sidebarText}15` }}>
           <List sx={{ px: sidebarCollapsed ? 1 : 2, py: 1 }}>
             {filteredBottomItems.map((item) => (
               <ListItem key={item.path} disablePadding>
@@ -255,9 +264,9 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
                       minHeight: 48,
                       justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                       px: sidebarCollapsed ? 1.5 : 2,
-                      bgcolor: isActive(item.path) ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
+                      bgcolor: isActive(item.path) ? `${colors.primary}25` : 'transparent',
                       '&:hover': {
-                        bgcolor: 'rgba(255, 255, 255, 0.08)',
+                        bgcolor: `${colors.sidebarText}10`,
                       },
                     }}
                   >
@@ -266,7 +275,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
                         minWidth: 0,
                         mr: sidebarCollapsed ? 0 : 2,
                         justifyContent: 'center',
-                        color: isActive(item.path) ? '#06b6d4' : 'rgba(255, 255, 255, 0.7)',
+                        color: isActive(item.path) ? colors.primary : `${colors.sidebarText}bb`,
                       }}
                     >
                       <item.icon />
@@ -278,7 +287,7 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
                           '& .MuiListItemText-primary': {
                             fontSize: '0.9rem',
                             fontWeight: isActive(item.path) ? 600 : 400,
-                            color: isActive(item.path) ? '#06b6d4' : 'rgba(255, 255, 255, 0.9)',
+                            color: isActive(item.path) ? colors.primary : `${colors.sidebarText}ee`,
                           },
                         }}
                       />
@@ -333,4 +342,3 @@ function Sidebar({ drawerWidth, mobileOpen, onClose }) {
 }
 
 export default Sidebar;
-
