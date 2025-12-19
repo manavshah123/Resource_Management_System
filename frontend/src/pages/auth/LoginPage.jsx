@@ -18,11 +18,20 @@ import {
   VisibilityOff,
 } from '@mui/icons-material';
 import { useAuthStore } from '@store/authStore';
+import { useBranding } from '../../context/BrandingContext';
 
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isLoading, error, clearError } = useAuthStore();
+  const { branding, currentTheme } = useBranding();
+
+  // Get colors from current theme
+  const colors = currentTheme?.colors || {
+    primary: '#3b82f6',
+    secondary: '#10b981',
+    sidebar: '#0f172a',
+  };
 
   const [formData, setFormData] = useState({
     email: '',
@@ -85,7 +94,7 @@ function LoginPage() {
           Welcome Back
         </Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Sign in to continue to Resource Management Portal
+          Sign in to continue to {branding.appName || 'Resource Management Portal'}
         </Typography>
       </Box>
 
@@ -152,7 +161,7 @@ function LoginPage() {
           <Link
             href="#"
             variant="body2"
-            sx={{ color: 'primary.main', textDecoration: 'none' }}
+            sx={{ color: colors.primary, textDecoration: 'none' }}
           >
             Forgot password?
           </Link>
@@ -166,9 +175,9 @@ function LoginPage() {
           disabled={isLoading}
           sx={{
             py: 1.5,
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
             '&:hover': {
-              background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+              background: `linear-gradient(135deg, ${adjustColor(colors.primary, -10)} 0%, ${adjustColor(colors.secondary, -10)} 100%)`,
             },
           }}
         >
@@ -201,5 +210,14 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+// Helper to darken a hex color
+function adjustColor(hex, percent) {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+  const G = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amt));
+  const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+  return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
+}
 
+export default LoginPage;

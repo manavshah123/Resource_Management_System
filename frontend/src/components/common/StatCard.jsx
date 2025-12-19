@@ -12,11 +12,17 @@ function StatCard({
   loading = false,
   onClick,
 }) {
+  // Use CSS variables for primary/secondary colors, keep others static
   const colorMap = {
     primary: {
-      bg: 'rgba(6, 182, 212, 0.1)',
-      icon: '#06b6d4',
-      gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+      bg: 'var(--primary-color-light)',
+      icon: 'var(--primary-color)',
+      gradient: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
+    },
+    secondary: {
+      bg: 'var(--secondary-color-light)',
+      icon: 'var(--secondary-color)',
+      gradient: 'linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%)',
     },
     success: {
       bg: 'rgba(16, 185, 129, 0.1)',
@@ -179,4 +185,3 @@ function StatCard({
 }
 
 export default StatCard;
-

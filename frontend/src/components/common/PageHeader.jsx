@@ -39,7 +39,7 @@ function PageHeader({
                 to={crumb.path}
                 underline="hover"
                 color="inherit"
-                sx={{ '&:hover': { color: 'primary.main' } }}
+                sx={{ '&:hover': { color: 'var(--primary-color)' } }}
               >
                 {crumb.label}
               </Link>
@@ -78,9 +78,9 @@ function PageHeader({
               onClick={onPrimaryAction}
               sx={{
                 px: 3,
-                background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)',
+                  background: 'linear-gradient(135deg, var(--primary-color-dark) 0%, var(--secondary-color) 100%)',
                 },
               }}
             >
@@ -94,4 +94,3 @@ function PageHeader({
 }
 
 export default PageHeader;
-
