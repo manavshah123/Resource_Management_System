@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/settings")
+@RequestMapping("/settings")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Application Settings", description = "APIs for managing application settings, branding, and integrations")
