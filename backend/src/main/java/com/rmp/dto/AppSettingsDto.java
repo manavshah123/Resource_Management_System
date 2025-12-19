@@ -86,8 +86,7 @@ public class AppSettingsDto {
         private String appName;
         private String appLogo;
         private String appFavicon;
-        private String primaryColor;
-        private String secondaryColor;
+        private String themeId;
         private String companyName;
         private String supportEmail;
         private String copyrightText;

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { settingsApi } from '@api/settingsApi';
+import { getThemeById, themePresets } from '../themes/themePresets';
 
 const BrandingContext = createContext(null);
 
@@ -7,8 +8,7 @@ const defaultBranding = {
   appName: 'Resource Management Portal',
   appLogo: '',
   appFavicon: '',
-  primaryColor: '#3b82f6',
-  secondaryColor: '#10b981',
+  themeId: 'default',
   companyName: 'RMP',
   supportEmail: 'support@rmp.com',
   copyrightText: '© 2024 RMP. All rights reserved.',
@@ -16,23 +16,29 @@ const defaultBranding = {
 
 export function BrandingProvider({ children }) {
   const [branding, setBranding] = useState(defaultBranding);
+  const [currentTheme, setCurrentTheme] = useState(getThemeById('default'));
   const [loading, setLoading] = useState(true);
 
   const fetchBranding = async () => {
     try {
       const response = await settingsApi.getPublicBranding();
       const data = response.data || {};
-      setBranding({ ...defaultBranding, ...data });
-      applyBranding(data);
+      const brandingData = { ...defaultBranding, ...data };
+      setBranding(brandingData);
+      
+      // Get theme from themeId or use colors to find matching theme
+      const theme = getThemeById(data.themeId || 'default');
+      setCurrentTheme(theme);
+      applyBranding(brandingData, theme);
     } catch (error) {
       console.error('Failed to fetch branding:', error);
-      applyBranding(defaultBranding);
+      applyBranding(defaultBranding, getThemeById('default'));
     } finally {
       setLoading(false);
     }
   };
 
-  const applyBranding = (config) => {
+  const applyBranding = (config, theme) => {
     // Apply document title
     if (config.appName) {
       document.title = config.appName;
@@ -50,17 +56,43 @@ export function BrandingProvider({ children }) {
       link.href = config.appFavicon;
     }
 
-    // Apply CSS custom properties for colors
+    // Apply theme colors as CSS custom properties
+    applyTheme(theme);
+  };
+
+  const applyTheme = (theme) => {
     const root = document.documentElement;
-    if (config.primaryColor) {
-      root.style.setProperty('--primary-color', config.primaryColor);
-      root.style.setProperty('--primary-color-light', `${config.primaryColor}20`);
-      root.style.setProperty('--primary-color-dark', adjustColor(config.primaryColor, -20));
+    const colors = theme.colors;
+    
+    // Primary colors
+    root.style.setProperty('--primary-color', colors.primary);
+    root.style.setProperty('--primary-color-light', `${colors.primary}20`);
+    root.style.setProperty('--primary-color-dark', adjustColor(colors.primary, -20));
+    
+    // Secondary colors
+    root.style.setProperty('--secondary-color', colors.secondary);
+    root.style.setProperty('--secondary-color-light', `${colors.secondary}20`);
+    
+    // Sidebar colors
+    root.style.setProperty('--sidebar-bg', colors.sidebar);
+    root.style.setProperty('--sidebar-text', colors.sidebarText);
+    
+    // Accent colors
+    root.style.setProperty('--accent-color', colors.accent);
+    
+    // Background
+    root.style.setProperty('--background-color', colors.background);
+    
+    // Update body background for dark themes
+    if (theme.id === 'midnight') {
+      document.body.style.backgroundColor = colors.background;
+      document.body.style.color = '#e2e8f0';
+    } else {
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
     }
-    if (config.secondaryColor) {
-      root.style.setProperty('--secondary-color', config.secondaryColor);
-      root.style.setProperty('--secondary-color-light', `${config.secondaryColor}20`);
-    }
+
+    setCurrentTheme(theme);
   };
 
   // Helper to darken/lighten a hex color
@@ -77,12 +109,25 @@ export function BrandingProvider({ children }) {
     await fetchBranding();
   };
 
+  const setTheme = (themeId) => {
+    const theme = getThemeById(themeId);
+    applyTheme(theme);
+    return theme;
+  };
+
   useEffect(() => {
     fetchBranding();
   }, []);
 
   return (
-    <BrandingContext.Provider value={{ branding, loading, refreshBranding }}>
+    <BrandingContext.Provider value={{ 
+      branding, 
+      currentTheme,
+      loading, 
+      refreshBranding, 
+      setTheme,
+      themePresets 
+    }}>
       {children}
     </BrandingContext.Provider>
   );
@@ -97,4 +142,3 @@ export function useBranding() {
 }
 
 export default BrandingContext;
-

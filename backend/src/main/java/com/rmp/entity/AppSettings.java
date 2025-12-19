@@ -59,8 +59,7 @@ public class AppSettings extends BaseEntity {
     public static final String KEY_APP_NAME = "APP_NAME";
     public static final String KEY_APP_LOGO = "APP_LOGO";
     public static final String KEY_APP_FAVICON = "APP_FAVICON";
-    public static final String KEY_PRIMARY_COLOR = "PRIMARY_COLOR";
-    public static final String KEY_SECONDARY_COLOR = "SECONDARY_COLOR";
+    public static final String KEY_THEME_ID = "THEME_ID";
     public static final String KEY_COMPANY_NAME = "COMPANY_NAME";
     public static final String KEY_SUPPORT_EMAIL = "SUPPORT_EMAIL";
     public static final String KEY_COPYRIGHT_TEXT = "COPYRIGHT_TEXT";

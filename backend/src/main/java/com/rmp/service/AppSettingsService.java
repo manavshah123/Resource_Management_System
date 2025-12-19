@@ -69,16 +69,14 @@ public class AppSettingsService {
                 "", "Logo URL", "URL or path to the application logo", "STRING", false, false, 2),
             createSetting(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_APP_FAVICON, 
                 "", "Favicon URL", "URL or path to the favicon", "STRING", false, false, 3),
-            createSetting(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_PRIMARY_COLOR, 
-                "#3b82f6", "Primary Color", "Primary theme color (hex format)", "STRING", false, false, 4),
-            createSetting(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_SECONDARY_COLOR, 
-                "#10b981", "Secondary Color", "Secondary theme color (hex format)", "STRING", false, false, 5),
+            createSetting(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_THEME_ID, 
+                "default", "Theme", "Application color theme", "STRING", false, false, 4),
             createSetting(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_COMPANY_NAME, 
-                "RMP", "Company Name", "Your company name", "STRING", false, false, 6),
+                "RMP", "Company Name", "Your company name", "STRING", false, false, 5),
             createSetting(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_SUPPORT_EMAIL, 
-                "support@rmp.com", "Support Email", "Support contact email", "STRING", false, false, 7),
+                "support@rmp.com", "Support Email", "Support contact email", "STRING", false, false, 6),
             createSetting(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_COPYRIGHT_TEXT, 
-                "© 2024 RMP. All rights reserved.", "Copyright Text", "Footer copyright text", "STRING", false, false, 8)
+                "© 2024 RMP. All rights reserved.", "Copyright Text", "Footer copyright text", "STRING", false, false, 7)
         );
         settingsRepository.saveAll(brandingSettings);
     }
@@ -203,8 +201,7 @@ public class AppSettingsService {
                 .appName(map.getOrDefault(AppSettings.KEY_APP_NAME, "Resource Management Portal"))
                 .appLogo(map.getOrDefault(AppSettings.KEY_APP_LOGO, ""))
                 .appFavicon(map.getOrDefault(AppSettings.KEY_APP_FAVICON, ""))
-                .primaryColor(map.getOrDefault(AppSettings.KEY_PRIMARY_COLOR, "#3b82f6"))
-                .secondaryColor(map.getOrDefault(AppSettings.KEY_SECONDARY_COLOR, "#10b981"))
+                .themeId(map.getOrDefault(AppSettings.KEY_THEME_ID, "default"))
                 .companyName(map.getOrDefault(AppSettings.KEY_COMPANY_NAME, "RMP"))
                 .supportEmail(map.getOrDefault(AppSettings.KEY_SUPPORT_EMAIL, "support@rmp.com"))
                 .copyrightText(map.getOrDefault(AppSettings.KEY_COPYRIGHT_TEXT, "© 2024 RMP. All rights reserved."))
@@ -269,8 +266,7 @@ public class AppSettingsService {
         updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_APP_NAME, config.getAppName());
         updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_APP_LOGO, config.getAppLogo());
         updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_APP_FAVICON, config.getAppFavicon());
-        updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_PRIMARY_COLOR, config.getPrimaryColor());
-        updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_SECONDARY_COLOR, config.getSecondaryColor());
+        updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_THEME_ID, config.getThemeId());
         updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_COMPANY_NAME, config.getCompanyName());
         updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_SUPPORT_EMAIL, config.getSupportEmail());
         updateSettingValue(AppSettings.CATEGORY_BRANDING, AppSettings.KEY_COPYRIGHT_TEXT, config.getCopyrightText());
@@ -300,10 +296,26 @@ public class AppSettingsService {
 
     private void updateSettingValue(String category, String key, String value) {
         settingsRepository.findByCategoryAndKey(category, key)
-                .ifPresent(setting -> {
-                    setting.setValue(value);
-                    settingsRepository.save(setting);
-                });
+                .ifPresentOrElse(
+                    setting -> {
+                        setting.setValue(value);
+                        settingsRepository.save(setting);
+                    },
+                    () -> {
+                        // Create the setting if it doesn't exist
+                        AppSettings newSetting = AppSettings.builder()
+                                .category(category)
+                                .key(key)
+                                .value(value)
+                                .displayName(key.replace("_", " ").toLowerCase())
+                                .valueType("STRING")
+                                .isSecret(false)
+                                .isRequired(false)
+                                .displayOrder(99)
+                                .build();
+                        settingsRepository.save(newSetting);
+                    }
+                );
     }
 
     private String getCategoryDisplayName(String category) {

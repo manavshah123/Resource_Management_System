@@ -22,7 +22,8 @@ import {
   InputAdornment,
   IconButton,
   Chip,
-  Tooltip,
+  Paper,
+  alpha,
 } from '@mui/material';
 import {
   Palette as BrandingIcon,
@@ -32,13 +33,82 @@ import {
   VisibilityOff as VisibilityOffIcon,
   Save as SaveIcon,
   Refresh as RefreshIcon,
-  CheckCircle as CheckIcon,
-  Error as ErrorIcon,
-  Info as InfoIcon,
+  Check as CheckMarkIcon,
 } from '@mui/icons-material';
 import { PageHeader } from '@components/common';
 import { settingsApi } from '@api/settingsApi';
 import { useBranding } from '../../context/BrandingContext';
+import { themePresets } from '../../themes/themePresets';
+
+// Theme Card Component
+function ThemeCard({ theme, isSelected, onSelect }) {
+  return (
+    <Paper
+      elevation={isSelected ? 8 : 1}
+      onClick={() => onSelect(theme.id)}
+      sx={{
+        p: 2,
+        cursor: 'pointer',
+        position: 'relative',
+        border: isSelected ? '2px solid' : '1px solid',
+        borderColor: isSelected ? 'primary.main' : 'divider',
+        borderRadius: 2,
+        transition: 'all 0.2s ease-in-out',
+        transform: isSelected ? 'scale(1.02)' : 'scale(1)',
+        '&:hover': {
+          transform: 'scale(1.02)',
+          boxShadow: 4,
+        },
+      }}
+    >
+      {/* Selected checkmark */}
+      {isSelected && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -8,
+            right: -8,
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            bgcolor: 'primary.main',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: 2,
+          }}
+        >
+          <CheckMarkIcon sx={{ color: 'white', fontSize: 16 }} />
+        </Box>
+      )}
+
+      {/* Color preview */}
+      <Box sx={{ display: 'flex', gap: 0.5, mb: 1.5 }}>
+        {theme.preview.map((color, index) => (
+          <Box
+            key={index}
+            sx={{
+              width: index === 0 ? 40 : 24,
+              height: 24,
+              borderRadius: 1,
+              bgcolor: color,
+              border: '1px solid',
+              borderColor: alpha('#000', 0.1),
+            }}
+          />
+        ))}
+      </Box>
+
+      {/* Theme name */}
+      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+        {theme.name}
+      </Typography>
+      <Typography variant="caption" color="text.secondary">
+        {theme.description}
+      </Typography>
+    </Paper>
+  );
+}
 
 function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -51,8 +121,7 @@ function SettingsPage() {
     appName: '',
     appLogo: '',
     appFavicon: '',
-    primaryColor: '#3b82f6',
-    secondaryColor: '#10b981',
+    themeId: 'default',
     companyName: '',
     supportEmail: '',
     copyrightText: '',
@@ -72,7 +141,7 @@ function SettingsPage() {
   });
 
   const [showSecret, setShowSecret] = useState(false);
-  const { refreshBranding } = useBranding();
+  const { refreshBranding, setTheme: applyThemePreview } = useBranding();
 
   useEffect(() => {
     fetchSettings();
@@ -95,11 +164,17 @@ function SettingsPage() {
     }
   };
 
+  const handleThemeSelect = (themeId) => {
+    setBranding({ ...branding, themeId });
+    // Apply theme preview immediately
+    applyThemePreview(themeId);
+  };
+
   const handleSaveBranding = async () => {
     try {
       setSaving(true);
       await settingsApi.updateBranding(branding);
-      await refreshBranding(); // Apply changes immediately
+      await refreshBranding(); // Apply changes permanently
       showSnackbar('Branding settings saved and applied!', 'success');
     } catch (error) {
       console.error('Failed to save branding:', error);
@@ -207,38 +282,6 @@ function SettingsPage() {
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Primary Color"
-                  type="color"
-                  value={branding.primaryColor}
-                  onChange={(e) => setBranding({ ...branding, primaryColor: e.target.value })}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Box sx={{ width: 24, height: 24, borderRadius: 1, bgcolor: branding.primaryColor }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Secondary Color"
-                  type="color"
-                  value={branding.secondaryColor}
-                  onChange={(e) => setBranding({ ...branding, secondaryColor: e.target.value })}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Box sx={{ width: 24, height: 24, borderRadius: 1, bgcolor: branding.secondaryColor }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
                   label="Support Email"
                   type="email"
                   value={branding.supportEmail}
@@ -255,13 +298,37 @@ function SettingsPage() {
                   helperText="Footer copyright text"
                 />
               </Grid>
+
+              {/* Theme Selection */}
+              <Grid item xs={12}>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                  Application Theme
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  Select a color theme for your application. Changes are previewed immediately.
+                </Typography>
+
+                <Grid container spacing={2}>
+                  {themePresets.map((theme) => (
+                    <Grid item xs={6} sm={4} md={3} lg={2.4} key={theme.id}>
+                      <ThemeCard
+                        theme={theme}
+                        isSelected={branding.themeId === theme.id}
+                        onSelect={handleThemeSelect}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid>
+
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
                   <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchSettings}>
                     Reset
                   </Button>
-                  <Button 
-                    variant="contained" 
+                  <Button
+                    variant="contained"
                     startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
                     onClick={handleSaveBranding}
                     disabled={saving}
@@ -295,8 +362,8 @@ function SettingsPage() {
                   />
                 }
                 label={
-                  <Chip 
-                    label={zoho.enabled ? 'Enabled' : 'Disabled'} 
+                  <Chip
+                    label={zoho.enabled ? 'Enabled' : 'Disabled'}
                     color={zoho.enabled ? 'success' : 'default'}
                     size="small"
                   />
@@ -418,8 +485,8 @@ function SettingsPage() {
                   <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchSettings}>
                     Reset
                   </Button>
-                  <Button 
-                    variant="contained" 
+                  <Button
+                    variant="contained"
                     startIcon={saving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
                     onClick={handleSaveZoho}
                     disabled={saving}
@@ -449,7 +516,7 @@ function SettingsPage() {
                 <Card variant="outlined">
                   <CardContent>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                Notifications
+                      Notifications
               </Typography>
               <List disablePadding>
                 <ListItem disableGutters>
@@ -524,7 +591,7 @@ function SettingsPage() {
                       defaultValue={7}
                       size="small"
                       sx={{ mt: 2 }}
-              />
+                    />
             </CardContent>
           </Card>
         </Grid>
