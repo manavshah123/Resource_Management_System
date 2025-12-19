@@ -14,4 +14,5 @@ export { certificateApi } from './certificateApi';
 export { forecastingApi } from './forecastingApi';
 export { userApi } from './userApi';
 export { rolePermissionApi } from './rolePermissionApi';
+export { settingsApi } from './settingsApi';
 export { zohoApi } from './zohoApi';
