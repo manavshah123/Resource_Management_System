@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RMP - Entity Relationship Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #1a1b26;
+            --bg-card: #24283b;
+            --text-primary: #c0caf5;
+            --text-secondary: #a9b1d6;
+            --accent-blue: #7aa2f7;
+            --accent-green: #9ece6a;
+            --accent-purple: #bb9af7;
+            --accent-orange: #ff9e64;
+            --accent-red: #f7768e;
+            --border-color: #414868;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .section {
+            margin-bottom: 3rem;
+        }
+        
+        .section h2 {
+            color: var(--accent-purple);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .diagram-wrapper {
+            position: relative;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 100;
+            background: rgba(26, 27, 38, 0.9);
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .zoom-controls button {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .zoom-controls button:hover {
+            background: var(--accent-blue);
+            color: #1a1b26;
+            border-color: var(--accent-blue);
+        }
+        
+        .zoom-level {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            padding: 0.25rem;
+        }
+        
+        .diagram-container {
+            height: 600px;
+            overflow: hidden;
+            cursor: grab;
+            position: relative;
+        }
+        
+        .diagram-container:active {
+            cursor: grabbing;
+        }
+        
+        .diagram-content {
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            padding: 2rem;
+        }
+        
+        .mermaid {
+            display: inline-block;
+        }
+        
+        .mermaid svg {
+            max-width: none !important;
+        }
+        
+        .zoom-hint {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background: rgba(26, 27, 38, 0.9);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .legend-item {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .legend-item h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-item p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-core { background: var(--accent-blue); color: #1a1b26; }
+        .badge-skills { background: var(--accent-green); color: #1a1b26; }
+        .badge-projects { background: var(--accent-orange); color: #1a1b26; }
+        .badge-training { background: var(--accent-purple); color: #1a1b26; }
+        .badge-quiz { background: var(--accent-red); color: #1a1b26; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+        
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        
+        .tab:hover, .tab.active {
+            background: var(--accent-blue);
+            color: #1a1b26;
+            border-color: var(--accent-blue);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .fullscreen-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 100;
+        }
+        
+        .fullscreen-btn button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            background: rgba(26, 27, 38, 0.9);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .fullscreen-btn button:hover {
+            background: var(--accent-blue);
+            color: #1a1b26;
+            border-color: var(--accent-blue);
+        }
+        
+        .diagram-wrapper.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            border-radius: 0;
+            margin: 0;
+        }
+        
+        .diagram-wrapper.fullscreen .diagram-container {
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏢 Resource Management Portal</h1>
+        <p>Entity Relationship Diagram - Database Schema v1.0.0</p>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div class="number">22</div>
+            <div class="label">Total Entities</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">5</div>
+            <div class="label">Core Modules</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">15+</div>
+            <div class="label">Relationships</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">PostgreSQL</div>
+            <div class="label">Database</div>
+        </div>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('full')">Full Diagram</div>
+        <div class="tab" onclick="showTab('core')">Core Entities</div>
+        <div class="tab" onclick="showTab('training')">Training System</div>
+        <div class="tab" onclick="showTab('quiz')">Quiz System</div>
+    </div>
+    
+    <div id="full" class="tab-content active">
+        <div class="section">
+            <h2>📊 Complete ER Diagram</h2>
+            <div class="diagram-wrapper" id="wrapper-full">
+                <div class="fullscreen-btn">
+                    <button onclick="toggleFullscreen('full')">
+                        <span>⛶</span> Fullscreen
+                    </button>
+                </div>
+                <div class="zoom-controls">
+                    <button onclick="zoomIn('full')" title="Zoom In">+</button>
+                    <div class="zoom-level" id="zoom-level-full">100%</div>
+                    <button onclick="zoomOut('full')" title="Zoom Out">−</button>
+                    <button onclick="resetZoom('full')" title="Reset">⟲</button>
+                    <button onclick="fitToScreen('full')" title="Fit">▣</button>
+                </div>
+                <div class="diagram-container" id="container-full">
+                    <div class="diagram-content" id="content-full">
+                        <pre class="mermaid" id="diagram-full">
+erDiagram
+    USERS ||--o| EMPLOYEES : "has profile"
+    USERS ||--o{ USER_ROLES : "has roles"
+    EMPLOYEES ||--o{ EMPLOYEES : "manages"
+    EMPLOYEES ||--o{ EMPLOYEE_SKILLS : "has skills"
+    SKILLS ||--o{ EMPLOYEE_SKILLS : "possessed by"
+    EMPLOYEES ||--o{ ALLOCATIONS : "assigned to"
+    PROJECTS ||--o{ ALLOCATIONS : "has team"
+    PROJECTS ||--o{ MILESTONES : "has"
+    PROJECTS ||--o{ PROJECT_SKILLS : "requires"
+    SKILLS ||--o{ PROJECT_SKILLS : "required by"
+    EMPLOYEES }o--|| PROJECTS : "manages"
+    
+    TRAININGS ||--o{ TRAINING_MODULES : "contains"
+    TRAININGS ||--o{ TRAINING_ASSIGNMENTS : "assigned"
+    TRAININGS ||--o{ TRAINING_SKILLS : "teaches"
+    SKILLS ||--o{ TRAINING_SKILLS : "taught in"
+    EMPLOYEES ||--o{ TRAINING_ASSIGNMENTS : "learns"
+    TRAINING_ASSIGNMENTS ||--|| CERTIFICATES : "earns"
+    EMPLOYEES ||--o{ CERTIFICATES : "holds"
+    USERS ||--o{ TRAININGS : "creates"
+    
+    QUIZZES ||--o{ QUIZ_QUESTIONS : "contains"
+    QUIZ_QUESTIONS ||--o{ QUIZ_OPTIONS : "has"
+    TRAININGS ||--o{ QUIZZES : "has quiz"
+    QUIZZES ||--o{ QUIZ_ATTEMPTS : "attempted"
+    EMPLOYEES ||--o{ QUIZ_ATTEMPTS : "takes"
+    QUIZ_ATTEMPTS ||--o{ QUIZ_ANSWERS : "has"
+    
+    USERS {
+        bigint id PK
+        string email UK
+        string password
+        string name
+        boolean enabled
+    }
+    
+    EMPLOYEES {
+        bigint id PK
+        string employee_id UK
+        string name
+        string department
+        string designation
+        double max_fte
+        string status
+        bigint manager_id FK
+        bigint user_id FK
+    }
+    
+    SKILLS {
+        bigint id PK
+        string name UK
+        string category
+        string description
+    }
+    
+    PROJECTS {
+        bigint id PK
+        string name
+        string client
+        string status
+        string priority
+        date start_date
+        date end_date
+        decimal budget
+    }
+    
+    ALLOCATIONS {
+        bigint id PK
+        bigint employee_id FK
+        bigint project_id FK
+        double fte
+        date start_date
+        date end_date
+        string role
+        string status
+    }
+    
+    TRAININGS {
+        bigint id PK
+        string title
+        string category
+        string difficulty
+        int duration_hours
+        string status
+    }
+    
+    QUIZZES {
+        bigint id PK
+        string title
+        int passing_score
+        int duration_minutes
+        string status
+    }
+                        </pre>
+                    </div>
+                </div>
+                <div class="zoom-hint">🖱️ Scroll to zoom • Drag to pan • Double-click to reset</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="core" class="tab-content">
+        <div class="section">
+            <h2>👥 Core Entities (Users, Employees, Skills)</h2>
+            <div class="diagram-wrapper" id="wrapper-core">
+                <div class="fullscreen-btn">
+                    <button onclick="toggleFullscreen('core')">
+                        <span>⛶</span> Fullscreen
+                    </button>
+                </div>
+                <div class="zoom-controls">
+                    <button onclick="zoomIn('core')" title="Zoom In">+</button>
+                    <div class="zoom-level" id="zoom-level-core">100%</div>
+                    <button onclick="zoomOut('core')" title="Zoom Out">−</button>
+                    <button onclick="resetZoom('core')" title="Reset">⟲</button>
+                    <button onclick="fitToScreen('core')" title="Fit">▣</button>
+                </div>
+                <div class="diagram-container" id="container-core">
+                    <div class="diagram-content" id="content-core">
+                        <pre class="mermaid" id="diagram-core">
+erDiagram
+    USERS ||--o| EMPLOYEES : "1:1"
+    EMPLOYEES ||--o{ EMPLOYEES : "manages"
+    EMPLOYEES ||--o{ EMPLOYEE_SKILLS : "has"
+    SKILLS ||--o{ EMPLOYEE_SKILLS : "assigned to"
+    
+    USERS {
+        bigint id PK
+        string email UK
+        string password
+        string name
+        string phone
+        string avatar
+        boolean enabled
+        boolean account_non_locked
+        string refresh_token
+        timestamp created_at
+    }
+    
+    EMPLOYEES {
+        bigint id PK
+        string employee_id UK
+        string name
+        string email UK
+        string phone
+        string department
+        string designation
+        string location
+        date join_date
+        double max_fte
+        string status
+        string availability_status
+        bigint manager_id FK
+        bigint user_id FK
+        string bio
+        timestamp deleted_at
+    }
+    
+    SKILLS {
+        bigint id PK
+        string name UK
+        string description
+        string category
+    }
+    
+    EMPLOYEE_SKILLS {
+        bigint id PK
+        bigint employee_id FK
+        bigint skill_id FK
+        string level
+        int years_of_experience
+        boolean is_primary
+        string notes
+    }
+                        </pre>
+                    </div>
+                </div>
+                <div class="zoom-hint">🖱️ Scroll to zoom • Drag to pan • Double-click to reset</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="training" class="tab-content">
+        <div class="section">
+            <h2>📚 Training & Certification System</h2>
+            <div class="diagram-wrapper" id="wrapper-training">
+                <div class="fullscreen-btn">
+                    <button onclick="toggleFullscreen('training')">
+                        <span>⛶</span> Fullscreen
+                    </button>
+                </div>
+                <div class="zoom-controls">
+                    <button onclick="zoomIn('training')" title="Zoom In">+</button>
+                    <div class="zoom-level" id="zoom-level-training">100%</div>
+                    <button onclick="zoomOut('training')" title="Zoom Out">−</button>
+                    <button onclick="resetZoom('training')" title="Reset">⟲</button>
+                    <button onclick="fitToScreen('training')" title="Fit">▣</button>
+                </div>
+                <div class="diagram-container" id="container-training">
+                    <div class="diagram-content" id="content-training">
+                        <pre class="mermaid" id="diagram-training">
+erDiagram
+    TRAININGS ||--o{ TRAINING_MODULES : "contains"
+    TRAININGS ||--o{ TRAINING_ASSIGNMENTS : "has"
+    TRAININGS ||--o{ TRAINING_SKILLS : "teaches"
+    SKILLS ||--o{ TRAINING_SKILLS : "taught in"
+    EMPLOYEES ||--o{ TRAINING_ASSIGNMENTS : "assigned"
+    TRAINING_ASSIGNMENTS ||--o{ TRAINING_PROGRESS : "tracks"
+    TRAINING_MODULES ||--o{ TRAINING_PROGRESS : "progress on"
+    TRAINING_ASSIGNMENTS ||--|| CERTIFICATES : "earns"
+    EMPLOYEES ||--o{ CERTIFICATES : "holds"
+    TRAININGS ||--o{ CERTIFICATES : "certifies for"
+    
+    TRAININGS {
+        bigint id PK
+        string title
+        text description
+        string category
+        string difficulty
+        int duration_hours
+        date due_date
+        string attachment_url
+        string video_url
+        string external_link
+        string status
+        int total_modules
+    }
+    
+    TRAINING_MODULES {
+        bigint id PK
+        bigint training_id FK
+        string title
+        text content
+        int order_index
+        string module_type
+        string resource_url
+        int duration_minutes
+    }
+    
+    TRAINING_ASSIGNMENTS {
+        bigint id PK
+        bigint training_id FK
+        bigint employee_id FK
+        date assigned_date
+        date due_date
+        string status
+        int progress_percentage
+        timestamp started_at
+        timestamp completed_at
+        text remarks
+    }
+    
+    CERTIFICATES {
+        bigint id PK
+        string certificate_number UK
+        bigint employee_id FK
+        bigint training_id FK
+        bigint assignment_id FK
+        date issued_date
+        date expiry_date
+        string issued_by
+        string status
+    }
+                        </pre>
+                    </div>
+                </div>
+                <div class="zoom-hint">🖱️ Scroll to zoom • Drag to pan • Double-click to reset</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="quiz" class="tab-content">
+        <div class="section">
+            <h2>🎯 Quiz & Assessment System</h2>
+            <div class="diagram-wrapper" id="wrapper-quiz">
+                <div class="fullscreen-btn">
+                    <button onclick="toggleFullscreen('quiz')">
+                        <span>⛶</span> Fullscreen
+                    </button>
+                </div>
+                <div class="zoom-controls">
+                    <button onclick="zoomIn('quiz')" title="Zoom In">+</button>
+                    <div class="zoom-level" id="zoom-level-quiz">100%</div>
+                    <button onclick="zoomOut('quiz')" title="Zoom Out">−</button>
+                    <button onclick="resetZoom('quiz')" title="Reset">⟲</button>
+                    <button onclick="fitToScreen('quiz')" title="Fit">▣</button>
+                </div>
+                <div class="diagram-container" id="container-quiz">
+                    <div class="diagram-content" id="content-quiz">
+                        <pre class="mermaid" id="diagram-quiz">
+erDiagram
+    QUIZZES ||--o{ QUIZ_QUESTIONS : "contains"
+    QUIZ_QUESTIONS ||--o{ QUIZ_OPTIONS : "has"
+    TRAININGS ||--o{ QUIZZES : "includes"
+    QUIZZES ||--o{ QUIZ_ASSIGNMENTS : "assigned"
+    EMPLOYEES ||--o{ QUIZ_ASSIGNMENTS : "gets"
+    QUIZZES ||--o{ QUIZ_ATTEMPTS : "attempted in"
+    EMPLOYEES ||--o{ QUIZ_ATTEMPTS : "makes"
+    QUIZ_ATTEMPTS ||--o{ QUIZ_ANSWERS : "contains"
+    QUIZ_QUESTIONS ||--o{ QUIZ_ANSWERS : "answered in"
+    QUIZ_OPTIONS ||--o{ QUIZ_ANSWERS : "selected in"
+    
+    QUIZZES {
+        bigint id PK
+        string title
+        text description
+        string difficulty
+        string category
+        int passing_score
+        int duration_minutes
+        int max_attempts
+        boolean shuffle_questions
+        boolean show_correct_answers
+        string status
+        bigint training_id FK
+    }
+    
+    QUIZ_QUESTIONS {
+        bigint id PK
+        bigint quiz_id FK
+        text question_text
+        string question_type
+        int points
+        int order_index
+        text explanation
+    }
+    
+    QUIZ_OPTIONS {
+        bigint id PK
+        bigint question_id FK
+        text option_text
+        boolean is_correct
+        int order_index
+    }
+    
+    QUIZ_ATTEMPTS {
+        bigint id PK
+        bigint quiz_id FK
+        bigint employee_id FK
+        int score
+        int total_points
+        double percentage
+        boolean passed
+        timestamp started_at
+        timestamp completed_at
+        int time_spent_seconds
+        int attempt_number
+    }
+    
+    QUIZ_ANSWERS {
+        bigint id PK
+        bigint attempt_id FK
+        bigint question_id FK
+        bigint selected_option_id FK
+        text text_answer
+        boolean is_correct
+        int points_earned
+    }
+                        </pre>
+                    </div>
+                </div>
+                <div class="zoom-hint">🖱️ Scroll to zoom • Drag to pan • Double-click to reset</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>📋 Entity Legend</h2>
+        <div class="legend">
+            <div class="legend-item">
+                <h3><span class="badge badge-core">CORE</span> Users & Employees</h3>
+                <p>Authentication, user profiles, employee management, manager hierarchy</p>
+            </div>
+            <div class="legend-item">
+                <h3><span class="badge badge-skills">SKILLS</span> Competencies</h3>
+                <p>Skills, proficiency levels, employee-skill mapping with experience</p>
+            </div>
+            <div class="legend-item">
+                <h3><span class="badge badge-projects">PROJECTS</span> Work Management</h3>
+                <p>Projects, allocations (FTE-based), milestones, required skills</p>
+            </div>
+            <div class="legend-item">
+                <h3><span class="badge badge-training">TRAINING</span> Learning</h3>
+                <p>Training courses, modules, assignments, progress tracking, certificates</p>
+            </div>
+            <div class="legend-item">
+                <h3><span class="badge badge-quiz">QUIZ</span> Assessments</h3>
+                <p>Quizzes, questions, options, attempts, answers with scoring</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Mermaid configuration
+        const mermaidConfig = {
+            startOnLoad: false,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#7aa2f7',
+                primaryTextColor: '#c0caf5',
+                primaryBorderColor: '#414868',
+                lineColor: '#7aa2f7',
+                secondaryColor: '#bb9af7',
+                tertiaryColor: '#24283b',
+                background: '#24283b',
+                mainBkg: '#24283b',
+                secondBkg: '#1a1b26',
+                border1: '#414868',
+                border2: '#414868',
+                arrowheadColor: '#7aa2f7',
+                fontFamily: 'Segoe UI, sans-serif',
+                fontSize: '14px',
+                labelTextColor: '#c0caf5',
+                textColor: '#c0caf5'
+            }
+        };
+        
+        mermaid.initialize(mermaidConfig);
+        
+        // Zoom and pan state for each diagram
+        const diagramState = {
+            full: { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 },
+            core: { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 },
+            training: { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 },
+            quiz: { scale: 1, translateX: 0, translateY: 0, isDragging: false, startX: 0, startY: 0 }
+        };
+        
+        const MIN_SCALE = 0.1;
+        const MAX_SCALE = 5;
+        const ZOOM_STEP = 0.2;
+        
+        // Store original diagram content
+        const diagramContent = {};
+        
+        function updateTransform(tabId) {
+            const state = diagramState[tabId];
+            const content = document.getElementById(`content-${tabId}`);
+            if (content) {
+                content.style.transform = `translate(${state.translateX}px, ${state.translateY}px) scale(${state.scale})`;
+                document.getElementById(`zoom-level-${tabId}`).textContent = `${Math.round(state.scale * 100)}%`;
+            }
+        }
+        
+        function zoomIn(tabId) {
+            const state = diagramState[tabId];
+            state.scale = Math.min(MAX_SCALE, state.scale + ZOOM_STEP);
+            updateTransform(tabId);
+        }
+        
+        function zoomOut(tabId) {
+            const state = diagramState[tabId];
+            state.scale = Math.max(MIN_SCALE, state.scale - ZOOM_STEP);
+            updateTransform(tabId);
+        }
+        
+        function resetZoom(tabId) {
+            const state = diagramState[tabId];
+            state.scale = 1;
+            state.translateX = 0;
+            state.translateY = 0;
+            updateTransform(tabId);
+        }
+        
+        function fitToScreen(tabId) {
+            const container = document.getElementById(`container-${tabId}`);
+            const content = document.getElementById(`content-${tabId}`);
+            const svg = content.querySelector('svg');
+            
+            if (!svg) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            const svgWidth = svg.getBoundingClientRect().width / diagramState[tabId].scale;
+            const svgHeight = svg.getBoundingClientRect().height / diagramState[tabId].scale;
+            
+            const scaleX = (containerRect.width - 40) / svgWidth;
+            const scaleY = (containerRect.height - 40) / svgHeight;
+            
+            const state = diagramState[tabId];
+            state.scale = Math.min(scaleX, scaleY, 1.5);
+            state.translateX = 0;
+            state.translateY = 0;
+            updateTransform(tabId);
+        }
+        
+        function toggleFullscreen(tabId) {
+            const wrapper = document.getElementById(`wrapper-${tabId}`);
+            wrapper.classList.toggle('fullscreen');
+            
+            const btn = wrapper.querySelector('.fullscreen-btn button');
+            if (wrapper.classList.contains('fullscreen')) {
+                btn.innerHTML = '<span>✕</span> Exit Fullscreen';
+                document.body.style.overflow = 'hidden';
+            } else {
+                btn.innerHTML = '<span>⛶</span> Fullscreen';
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Initialize zoom and pan for each diagram container
+        function initZoomPan(tabId) {
+            const container = document.getElementById(`container-${tabId}`);
+            const content = document.getElementById(`content-${tabId}`);
+            
+            if (!container || !content) return;
+            
+            // Mouse wheel zoom
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const state = diagramState[tabId];
+                const rect = container.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const oldScale = state.scale;
+                const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+                state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, state.scale + delta));
+                
+                // Zoom towards mouse position
+                const scaleRatio = state.scale / oldScale;
+                state.translateX = mouseX - (mouseX - state.translateX) * scaleRatio;
+                state.translateY = mouseY - (mouseY - state.translateY) * scaleRatio;
+                
+                updateTransform(tabId);
+            }, { passive: false });
+            
+            // Mouse drag pan
+            container.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return; // Only left click
+                const state = diagramState[tabId];
+                state.isDragging = true;
+                state.startX = e.clientX - state.translateX;
+                state.startY = e.clientY - state.translateY;
+                container.style.cursor = 'grabbing';
+            });
+            
+            container.addEventListener('mousemove', (e) => {
+                const state = diagramState[tabId];
+                if (!state.isDragging) return;
+                state.translateX = e.clientX - state.startX;
+                state.translateY = e.clientY - state.startY;
+                updateTransform(tabId);
+            });
+            
+            container.addEventListener('mouseup', () => {
+                diagramState[tabId].isDragging = false;
+                container.style.cursor = 'grab';
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                diagramState[tabId].isDragging = false;
+                container.style.cursor = 'grab';
+            });
+            
+            // Double click to reset
+            container.addEventListener('dblclick', () => {
+                resetZoom(tabId);
+            });
+            
+            // Touch support
+            let lastTouchDistance = 0;
+            let lastTouchCenter = { x: 0, y: 0 };
+            
+            container.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    const state = diagramState[tabId];
+                    state.isDragging = true;
+                    state.startX = e.touches[0].clientX - state.translateX;
+                    state.startY = e.touches[0].clientY - state.translateY;
+                } else if (e.touches.length === 2) {
+                    lastTouchDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    lastTouchCenter = {
+                        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                        y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+                    };
+                }
+            }, { passive: true });
+            
+            container.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const state = diagramState[tabId];
+                
+                if (e.touches.length === 1 && state.isDragging) {
+                    state.translateX = e.touches[0].clientX - state.startX;
+                    state.translateY = e.touches[0].clientY - state.startY;
+                    updateTransform(tabId);
+                } else if (e.touches.length === 2) {
+                    const distance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const scale = distance / lastTouchDistance;
+                    state.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, state.scale * scale));
+                    lastTouchDistance = distance;
+                    updateTransform(tabId);
+                }
+            }, { passive: false });
+            
+            container.addEventListener('touchend', () => {
+                diagramState[tabId].isDragging = false;
+            });
+        }
+        
+        async function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const tabs = ['full', 'core', 'training', 'quiz'];
+            
+            // Store original content and render diagrams
+            for (const tab of tabs) {
+                const container = document.querySelector(`#diagram-${tab}`);
+                if (container) {
+                    diagramContent[tab] = container.textContent.trim();
+                }
+            }
+            
+            // Render all diagrams
+            for (const tab of tabs) {
+                try {
+                    const { svg } = await mermaid.render(`mermaid-${tab}`, diagramContent[tab]);
+                    const container = document.querySelector(`#diagram-${tab}`);
+                    if (container) {
+                        container.innerHTML = svg;
+                    }
+                } catch (e) {
+                    console.error(`Error rendering ${tab}:`, e);
+                }
+            }
+            
+            // Initialize zoom and pan for each diagram
+            tabs.forEach(tab => initZoomPan(tab));
+        });
+        
+        // Handle escape key for fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.diagram-wrapper.fullscreen').forEach(wrapper => {
+                    wrapper.classList.remove('fullscreen');
+                    const btn = wrapper.querySelector('.fullscreen-btn button');
+                    btn.innerHTML = '<span>⛶</span> Fullscreen';
+                });
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
+</body>
+</html>
